@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CrashLab AI - Educational Crash Game Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+        }
+
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 40px rgba(14, 165, 233, 0.1);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
+        }
+
+        .multiplier-badge {
+            transition: all 0.3s ease;
+        }
+
+        .multiplier-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .animate-pulse-slow {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 200px;
+            }
+        }
+
+        /* Custom range input */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            height: 4px;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            background: #60a5fa;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: none;
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Mobile Header -->
+        <header class="lg:hidden fixed top-0 left-0 right-0 z-50 glass-dark p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-xl font-bold gradient-text">CrashLab AI</h1>
+                    <p class="text-xs text-gray-400">Educational Simulation</p>
+                </div>
+                <button id="mobileMenuBtn" class="p-2 rounded-xl hover:bg-white/5 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Navigation -->
+        <div id="mobileNav" class="lg:hidden fixed inset-0 z-40 bg-dark-200/95 backdrop-blur-xl hidden">
+            <nav class="p-4 space-y-1 mt-16">
+                <a href="#" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-xl" data-page="dashboard">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="simulation">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="font-medium">Simulation</span>
+                </a>
+                <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="probability">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <span class="font-medium">Probability Lab</span>
+                </a>
+                <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="analyzer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span class="font-medium">Analyzer</span>
+                </a>
+                <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="fairness">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    <span class="font-medium">Fairness Lab</span>
+                </a>
+                <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="docs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    <span class="font-medium">Documentation</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="flex">
+            <!-- Sidebar -->
+            <aside class="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
+                <div class="flex flex-col flex-1 glass m-4 rounded-2xl overflow-hidden">
+                    <div class="p-6 border-b border-white/5">
+                        <h1 class="text-2xl font-bold gradient-text">CrashLab AI</h1>
+                        <p class="text-xs text-gray-400 mt-1">Educational Simulation — Not a Betting Tool</p>
+                    </div>
+                    <nav class="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin">
+                        <a href="#" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-xl" data-page="dashboard">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                            <span class="font-medium">Dashboard</span>
+                        </a>
+                        <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="simulation">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="font-medium">Simulation</span>
+                        </a>
+                        <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="probability">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                            <span class="font-medium">Probability Lab</span>
+                        </a>
+                        <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="analyzer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span class="font-medium">Historical Analyzer</span>
+                        </a>
+                        <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="fairness">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                            <span class="font-medium">Fairness Lab</span>
+                        </a>
+                        <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="docs">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                            <span class="font-medium">Documentation</span>
+                        </a>
+                    </nav>
+                    <div class="p-4 border-t border-white/5">
+                        <div class="glass p-3 rounded-xl">
+                            <p class="text-xs text-gray-400 leading-relaxed">
+                                ⚠️ This is an educational simulator. It cannot predict real outcomes or guarantee winnings.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 lg:pl-72">
+                <div class="p-4 md:p-6 max-w-7xl mx-auto">
+                    <!-- Dashboard Page -->
+                    <div id="page-dashboard" class="page-content fade-in">
+                        <div class="space-y-6">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                <div>
+                                    <h1 class="text-3xl font-bold gradient-text">Dashboard</h1>
+                                    <p class="text-gray-400 mt-1">Crash Game Probability Research Laboratory</p>
+                                </div>
+                                <div class="flex items-center gap-2 px-4 py-2 glass rounded-xl">
+                                    <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                    <span class="text-xs text-gray-300">Educational Simulation — Not a Betting Tool</span>
+                                </div>
+                            </div>
+
+                            <!-- Stats Grid -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="dashboardStats">
+                                <div class="glass p-6 rounded-2xl">
+                                    <div class="flex items-center justify-between">
+                                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        <span class="text-2xl font-bold text-white" id="statRounds">0</span>
+                                    </div>
+                                    <p class="text-sm text-gray-400 mt-2">Total Rounds</p>
+                                </div>
+                                <div class="glass p-6 rounded-2xl">
+                                    <div class="flex items-center justify-between">
+                                        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                                        <span class="text-2xl font-bold text-white" id="statMean">0.00</span>
+                                    </div>
+                                    <p class="text-sm text-gray-400 mt-2">Average Multiplier</p>
+                                </div>
+                                <div class="glass p-6 rounded-2xl">
+                                    <div class="flex items-center justify-between">
+                                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                                        <span class="text-2xl font-bold text-white" id="statMax">0.00</span>
+                                    </div>
+                                    <p class="text-sm text-gray-400 mt-2">Max Multiplier</p>
+                                </div>
+                                <div class="glass p-6 rounded-2xl">
+                                    <div class="flex items-center justify-between">
+                                        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
+                                        <span class="text-2xl font-bold text-white" id="statStd">0.00</span>
+                                    </div>
+                                    <p class="text-sm text-gray-400 mt-2">Std Deviation</p>
+                                </div>
+                            </div>
+
+                            <!-- Chart -->
+                            <div class="glass p-6 rounded-2xl">
+                                <h2 class="text-lg font-semibold text-white mb-4">Recent Rounds</h2>
+                                <div class="chart-container">
+                                    <canvas id="dashboardChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Probability Overview -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="glass p-6 rounded-2xl">
+                                    <h2 class="text-lg font-semibold text-white mb-4">Key Probabilities</h2>
+                                    <div class="space-y-3" id="probabilityOverview">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-400">≥ 2.00x</span>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
+                                                    <div class="h-full bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full" style="width: 0%"></div>
+                                                </div>
+                                                <span class="text-sm text-white font-medium" id="prob2x">0%</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-400">≥ 3.00x</span>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
+                                                    <div class="h-full bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full" style="width: 0%"></div>
+                                                </div>
+                                                <span class="text-sm text-white font-medium" id="prob3x">0%</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-400">≥ 5.00x</span>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
+                                                    <div class="h-full bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full" style="width: 0%"></div>
+                                                </div>
+                                                <span class="text-sm text-white font-medium" id="prob5x">0%</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-400">≥ 10.00x</span>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
+                                                    <div class="h-full bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full" style="width: 0%"></div>
+                                                </div>
+                                                <span class="text-sm text-white font-medium" id="prob10x">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="glass p-6 rounded-2xl">
+                                    <h2 class="text-lg font-semibold text-white mb-4">Educational Note</h2>
+                                    <div class="space-y-3 text-sm text-gray-300 leading-relaxed">
+                                        <p>📊 These statistics describe <strong>observed patterns</strong> in the simulated dataset.</p>
+                                        <p>🔄 Historical results do <strong>not</strong> predict future independent crash points.</p>
+                                        <p>🎯 Each round is generated using a random process where past outcomes have no influence on future outcomes.</p>
+                                        <p class="mt-4 text-xs text-gray-400">⚠️ This is an educational tool for understanding probability and statistics in random processes.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Gambler's Fallacy Warning -->
+                            <div class="glass border border-yellow-500/20 bg-yellow-500/5 p-6 rounded-2xl">
+                                <div class="flex items-start gap-3">
+                                    <svg class="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                    <div>
+                                        <h3 class="text-sm font-semibold text-yellow-400">Gambler's Fallacy Warning</h3>
+                                        <p class="text-sm text-gray-300 mt-1">In independent random events (like crash game multipliers), previous results <strong>do not</strong> affect future results. A series of low multipliers does not make a high multiplier more likely.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Simulation Page -->
+                    <div id="page-simulation" class="page-content fade-in hidden">
+                        <div class="space-y-6">
+                            <div>
+                                <h1 class="text-3xl font-bold gradient-text">Live Simulation</h1>
+                                <p class="text-gray-400 mt-1">Simulate crash game rounds using a mathematical random engine</p>
+                            </div>
+
+                            <!-- Controls -->
+                            <div class="glass p-6 rounded-2xl">
+                                <div class="flex flex-wrap items-center gap-4">
+                                    <button id="simStartBtn" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-xl flex items-center gap-2 font-medium transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        Start Simulation
+                                    </button>
+                                    <button id="simPauseBtn" class="px-6 py-3 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl flex items-center gap-2 font-medium transition-colors" disabled>
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        Pause
+                                    </button>
+                                    <button id="simResetBtn" class="px-6 py-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center gap-2 font-medium transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                        Reset
+                                    </button>
+                                    <div class="flex items-center gap-2 ml-auto">
+                                        <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        <input type="range" id="simSpeed" min="0.5" max="5" step="0.5" value="1" class="w-32 accent-blue-500" />
+                                        <span class="text-sm text-gray-400" id="simSpeedLabel">1x</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-wrap gap-2 mt-4">
+                                    <button class="simBatchBtn px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors" data-count="10">10 rounds</button>
+                                    <button class="simBatchBtn px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors" data-count="100">100 rounds</button>
+                                    <button class="simBatchBtn px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors" data-count="1000">1,000 rounds</button>
+                                    <button class="simBatchBtn px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors" data-count="10000">10,000 rounds</button>
+                                </div>
+                            </div>
+
+                            <!-- Current Multiplier -->
+                            <div class="glass p-6 rounded-2xl text-center">
+                                <div class="text-6xl font-bold gradient-text font-mono" id="currentMultiplier">1.00x</div>
+                                <p class="text-sm text-gray-400 mt-2">Current Multiplier</p>
+                            </div>
+
+                            <!-- Chart -->
+                            <div class="glass p-6 rounded-2xl">
+                                <h2 class="text-lg font-semibold text-white mb-4">Recent Rounds</h2>
+                                <div class="chart-container">
+                                    <canvas id="simulationChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Recent Results -->
+                            <div class="glass p-6 rounded-2xl">
+                                <h2 class="text-lg font-semibold text-white mb-4">Recent Results (<span id="simRoundCount">0</span> total)</h2>
+                                <div class="flex flex-wrap gap-2 max-h-48 overflow-y-auto scrollbar-thin" id="simResults">
+                                    <div class="text-gray-400 text-sm">No results yet. Start a simulation!</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Probability Lab Page -->
+                    <div id="page-probability" class="page-content fade-in hidden">
+                        <div class="space-y-6">
+                            <div>
+                                <h1 class="text-3xl font-bold gradient-text">Probability Lab</h1>
+                                <p class="text-gray-400 mt-1">Estimate probabilities of reaching different multipliers</p>
+                            </div>
+
+                            <div class="glass p-6 rounded-2xl">
+                                <div class="flex flex-wrap items-end gap-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-400 mb-2">Sample Size</label>
+                                        <select id="probSampleSize" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="100">100 rounds</option>
+                                            <option value="1000" selected>1,000 rounds</option>
+                                            <option value="10000">10,000 rounds</option>
+                                            <option value="100000">100,000 rounds</option>
+                                        </select>
+                                    </div>
+                                    <button id="probCalcBtn" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-xl font-medium transition-colors">Calculate Probabilities</button>
+                                </div>
+                            </div>
+
+                            <div id="probResults" class="hidden">
+                                <div class="glass p-6 rounded-2xl">
+                                    <h2 class="text-lg font-semibold text-white mb-4">Probability Estimates</h2>
+                                    <div class="chart-container">
+                                        <canvas id="probabilityChart"></canvas>
+                                    </div>
+                                </div>
+
+                                <div class="glass p-6 rounded-2xl">
+                                    <h2 class="text-lg font-semibold text-white mb-4">Detailed Results</h2>
+                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3" id="probDetailedResults"></div>
+                                </div>
+
+                                <div class="glass border border-blue-500/20 bg-blue-500/5 p-6 rounded-2xl">
+                                    <div class="flex items-start gap-3">
+                                        <svg class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                        <div>
+                                            <h3 class="text-sm font-semibold text-blue-400">Educational Note</h3>
+                                            <p class="text-sm text-gray-300 mt-1">These are <strong>probability estimates</strong> based on simulated data. They describe the statistical distribution of the random process, not predictions of specific future outcomes.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Historical Analyzer Page -->
+                    <div id="page-analyzer" class="page-content fade-in hidden">
+                        <div class="space-y-6">
+                            <div>
+                                <h1 class="text-3xl font-bold gradient-text">Historical Analyzer</h1>
+                                <p class="text-gray-400 mt-1">Upload and analyze historical crash data</p>
+                            </div>
+
+                            <div class="glass p-6 rounded-2xl">
+                                <div class="flex flex-wrap items-center gap-4">
+                                    <label class="cursor-pointer">
+                                        <div class="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-xl flex items-center gap-2 font-medium transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                            Upload CSV
+                                        </div>
+                                        <input type="file" id="csvUpload" accept=".csv" class="hidden" />
+                                    </label>
+                                    <button id="exportCsvBtn" class="px-6 py-3 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl flex items-center gap-2 font-medium transition-colors" disabled>
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                        Export CSV
+                                    </button>
+                                    <div class="text-sm text-gray-400" id="analyzerStatus">No data loaded</div>
+                                </div>
+                                <div id="csvError" class="mt-4 hidden p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <p class="text-sm text-red-400" id="csvErrorMsg"></p>
+                                </div>
+                            </div>
+
+                            <div id="analyzerResults" class="hidden">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="analyzerStats">
+                                    <div class="glass p-4 rounded-xl">
+                                        <p class="text-sm text-gray-400">Mean</p>
+                                        <p class="text-2xl font-bold text-white" id="aMean">0.00x</p>
+                                    </div>
+                                    <div class="glass p-4 rounded-xl">
+                                        <p class="text-sm text-gray-400">Median</p>
+                                        <p class="text-2xl font-bold text-white" id="aMedian">0.00x</p>
+                                    </div>
+                                    <div class="glass p-4 rounded-xl">
+                                        <p class="text-sm text-gray-400">Min / Max</p>
+                                        <p class="text-2xl font-bold text-white" id="aMinMax">0.00 / 0.00x</p>
+                                    </div>
+                                    <div class="glass p-4 rounded-xl">
+                                        <p class="text-sm text-gray-400">Std Deviation</p>
+                                        <p class="text-2xl font-bold text-white" id="aStd">0.00</p>
+                                    </div>
+                                </div>
+
+                                <div class="glass p-6 rounded-2xl">
+                                    <h2 class="text-lg font-semibold text-white mb-4">Frequency Distribution</h2>
+                                    <div class="chart-container">
+                                        <canvas id="analyzerChart"></canvas>
+                                    </div>
+                                </div>
+
+                                <div class="glass border border-yellow-500/20 bg-yellow-500/5 p-6 rounded-2xl">
+                                    <div class="flex items-start gap-3">
+                                        <svg class="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                        <div>
+                                            <h3 class="text-sm font-semibold text-yellow-400">Important: Historical Analysis</h3>
+                                            <p class="text-sm text-gray-300 mt-1">These statistics describe <strong>past data only</strong>. They cannot predict future independent random events. The presence of patterns in historical data does not imply predictability.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fairness Lab Page -->
+                    <div id="page-fairness" class="page-content fade-in hidden">
+                        <div class="space-y-6">
+                            <div>
+                                <h1 class="text-3xl font-bold gradient-text">Fairness Lab</h1>
+                                <p class="text-gray-400 mt-1">Educational demonstration of provably-fair concepts</p>
+                            </div>
+
+                            <div class="glass p-6 rounded-2xl">
+                                <h2 class="text-lg font-semibold text-white mb-4">Provably-Fair Demonstration</h2>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-400 mb-2">Server Seed (Demo)</label>
+                                        <input type="text" id="serverSeed" value="DEMO_SERVER_SEED_123" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-400 mb-2">Client Seed (Demo)</label>
+                                        <input type="text" id="clientSeed" value="LEARNING_USER_456" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-400 mb-2">Nonce</label>
+                                        <input type="number" id="nonce" value="27" min="0" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                    <button id="fairnessCalcBtn" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-xl font-medium transition-colors">Calculate Demo Result</button>
+                                </div>
+                            </div>
+
+                            <div id="fairnessResults" class="hidden">
+                                <div class="glass p-6 rounded-2xl">
+                                    <h2 class="text-lg font-semibold text-white mb-4">Verification Result</h2>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center p-3 bg-white/5 rounded-xl">
+                                            <span class="text-gray-400">Hash</span>
+                                            <span class="font-mono text-sm text-white" id="fairnessHash">-</span>
+                                        </div>
+                                        <div class="flex justify-between items-center p-3 bg-white/5 rounded-xl">
+                                            <span class="text-gray-400">Demo Multiplier</span>
+                                            <span class="font-mono text-2xl font-bold gradient-text" id="fairnessMultiplier">0.00x</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="glass border border-blue-500/20 bg-blue-500/5 p-6 rounded-2xl">
+                                    <div class="flex items-start gap-3">
+                                        <svg class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                        <div>
+                                            <h3 class="text-sm font-semibold text-blue-400">Educational Note</h3>
+                                            <p class="text-sm text-gray-300 mt-1">Verification demonstrates reproducibility of a completed simulated round. It does NOT predict future real-game rounds.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Documentation Page -->
+                    <div id="page-docs" class="page-content fade-in hidden">
+                        <div class="space-y-6">
+                            <div>
+                                <h1 class="text-3xl font-bold gradient-text">Documentation</h1>
+                                <p class="text-gray-400 mt-1">Learn about the simulation methodology and probability concepts</p>
+                            </div>
+
+                            <div class="glass p-6 rounded-2xl space-y-6">
+                                <div>
+                                    <h2 class="text-xl font-semibold text-white mb-2">Project Purpose</h2>
+                                    <p class="text-gray-300">CrashLab AI is a sophisticated educational application designed to demonstrate why future crash multipliers in Aviator-style games cannot be reliably predicted from previous rounds. It serves as a probability research laboratory for understanding random processes, statistical distributions, and the gambler's fallacy.</p>
+                                    <p class="text-yellow-400 text-sm mt-2">⚠️ This is an educational simulator — NOT a betting tool.</p>
+                                </div>
+
+                                <div>
+                                    <h2 class="text-xl font-semibold text-white mb-2">Simulation Methodology</h2>
+                                    <p class="text-gray-300">The simulator uses a deterministic random number generator with seeding to produce crash points following an exponential distribution:</p>
+                                    <div class="mt-2 p-4 bg-white/5 rounded-xl font-mono text-sm text-gray-300">
+                                        generateCrashPoint(seed) {<br />
+                                        &nbsp;&nbsp;random = generateRandom(seed);<br />
+                                        &nbsp;&nbsp;return 1 / (1 - random * 0.99);<br />
+                                        }
+                                    </div>
+                                    <p class="text-gray-300 mt-2">This produces a distribution where:</p>
+                                    <ul class="list-disc list-inside text-gray-300 mt-1 space-y-1">
+                                        <li>Most rounds crash between 1.00x and 2.00x</li>
+                                        <li>Higher multipliers are progressively rarer</li>
+                                        <li>Each round is independent of all previous rounds</li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <h2 class="text-xl font-semibold text-white mb-2">Probability Concepts</h2>
+                                    <h3 class="text-lg font-medium text-white mt-4 mb-2">Independent Events</h3>
+                                    <p class="text-gray-300">Each crash point is generated independently. Previous results do not influence future results.</p>
+                                    <h3 class="text-lg font-medium text-white mt-4 mb-2">Distribution Convergence</h3>
+                                    <p class="text-gray-300">As the number of simulated rounds increases, observed probabilities converge to theoretical probabilities (Law of Large Numbers).</p>
+                                    <h3 class="text-lg font-medium text-white mt-4 mb-2">Gambler's Fallacy</h3>
+                                    <p class="text-gray-300">The mistaken belief that past independent events affect future independent events. For example: "The last 10 rounds were low, so a high round is due."</p>
+                                </div>
+
+                                <div>
+                                    <h2 class="text-xl font-semibold text-white mb-2">Why Historical Patterns Cannot Predict Independent Rounds</h2>
+                                    <ol class="list-decimal list-inside text-gray-300 space-y-1">
+                                        <li><strong>Memoryless Property:</strong> Each round is independent</li>
+                                        <li><strong>No Causality:</strong> Past results don't cause future results</li>
+                                        <li><strong>Random Seed:</strong> Each round uses a different seed</li>
+                                        <li><strong>Unpredictable:</strong> The crash point is uniformly random within the distribution</li>
+                                    </ol>
+                                </div>
+
+                                <div>
+                                    <h2 class="text-xl font-semibold text-white mb-2">Responsible-Use Disclaimer</h2>
+                                    <p class="text-gray-300">This application is designed for educational purposes only. It does not:</p>
+                                    <ul class="list-disc list-inside text-gray-300 mt-1 space-y-1">
+                                        <li>Predict real game outcomes</li>
+                                        <li>Guarantee winnings</li>
+                                        <li>Provide betting signals</li>
+                                        <li>Connect to gambling operators</li>
+                                        <li>Automate wagers or deposits</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // CORE SIMULATION ENGINE
+        // ============================================================
+        class CrashSimulator {
+            constructor(seed = Date.now().toString()) {
+                this.seed = seed;
+                this.rounds = [];
+                this.isRunning = false;
+                this.isPaused = false;
+                this.currentMultiplier = 1.0;
+                this.roundId = 0;
+                this.speed = 1;
+                this.running = false;
+            }
+
+            generateRandom(seed) {
+                let hash = 0;
+                for (let i = 0; i < seed.length; i++) {
+                    const char = seed.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                const x = Math.sin(hash) * 10000;
+                return x - Math.floor(x);
+            }
+
+            generateCrashPoint(seed) {
+                const random = this.generateRandom(seed);
+                const crashPoint = 1 / (1 - random * 0.99);
+                return Math.round(crashPoint * 100) / 100;
+            }
+
+            generateRounds(count) {
+                const results = [];
+                for (let i = 0; i < count; i++) {
+                    const seed = `${this.seed}_${i}_${Date.now()}`;
+                    const multiplier = this.generateCrashPoint(seed);
+                    results.push({
+                        id: this.roundId++,
+                        multiplier,
+                        timestamp: Date.now(),
+                        isSimulation: true,
+                        seed: seed,
+                    });
+                }
+                return results;
+            }
+
+            setSpeed(speed) {
+                this.speed = Math.max(0.1, Math.min(10, speed));
+            }
+
+            pause() {
+                this.isPaused = true;
+            }
+
+            resume() {
+                this.isPaused = false;
+            }
+
+            reset() {
+                this.rounds = [];
+                this.roundId = 0;
+                this.isRunning = false;
+                this.isPaused = false;
+                this.currentMultiplier = 1.0;
+                this.running = false;
+            }
+
+            getRounds() {
+                return this.rounds;
+            }
+
+            async simulateRound(onUpdate, onComplete) {
+                if (this.isPaused) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    return;
+                }
+
+                const seed = `${this.seed}_${this.roundId}_${Date.now()}`;
+                const multiplier = this.generateCrashPoint(seed);
+                const round = {
+                    id: this.roundId++,
+                    multiplier,
+                    timestamp: Date.now(),
+                    isSimulation: true,
+                    seed: seed,
+                };
+
+                this.rounds.push(round);
+                this.currentMultiplier = multiplier;
+
+                // Animate the multiplier growth
+                let current = 1.0;
+                while (current < multiplier && this.running) {
+                    if (this.isPaused) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        continue;
+                    }
+                    current += 0.01 * this.speed;
+                    if (current > multiplier) current = multiplier;
+                    onUpdate(current);
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                }
+
+                onComplete(round);
+            }
+        }
+
+        // ============================================================
+        // STATISTICS ENGINE
+        // ============================================================
+        function calculateStatistics(rounds) {
+            if (rounds.length === 0) {
+                return {
+                    mean: 0,
+                    median: 0,
+                    min: 0,
+                    max: 0,
+                    stdDev: 0,
+                    aboveMultipliers: [],
+                    totalRounds: 0,
+                    frequencyDistribution: []
+                };
+            }
+
+            const multipliers = rounds.map(r => r.multiplier).sort((a, b) => a - b);
+            const total = multipliers.length;
+            const sum = multipliers.reduce((a, b) => a + b, 0);
+            const mean = sum / total;
+
+            const squaredDiffs = multipliers.map(x => Math.pow(x - mean, 2));
+            const variance = squaredDiffs.reduce((a, b) => a + b, 0) / total;
+            const stdDev = Math.sqrt(variance);
+
+            const median = total % 2 === 0 ?
+                (multipliers[total / 2 - 1] + multipliers[total / 2]) / 2 :
+                multipliers[Math.floor(total / 2)];
+
+            const ranges = [
+                { label: '1.00–1.20', min: 1.0, max: 1.2 },
+                { label: '1.20–1.50', min: 1.2, max: 1.5 },
+                { label: '1.50–2.00', min: 1.5, max: 2.0 },
+                { label: '2.00–3.00', min: 2.0, max: 3.0 },
+                { label: '3.00–5.00', min: 3.0, max: 5.0 },
+                { label: '5.00–10.00', min: 5.0, max: 10.0 },
+                { label: '10.00–20.00', min: 10.0, max: 20.0 },
+                { label: '20.00–50.00', min: 20.0, max: 50.0 },
+                { label: '50.00+', min: 50.0, max: Infinity },
+            ];
+
+            const frequencyDistribution = ranges.map(range => ({
+                range: range.label,
+                count: multipliers.filter(x => x >= range.min && x < range.max).length,
+            }));
+
+            const aboveMultipliers = [1.2, 1.5, 2, 3, 5, 10, 20, 50, 100].map(mult => {
+                const count = multipliers.filter(x => x >= mult).length;
+                return {
+                    multiplier: mult,
+                    count,
+                    percentage: (count / total) * 100,
+                };
+            });
+
+            return {
+                mean,
+                median,
+                min: multipliers[0] || 0,
+                max: multipliers[total - 1] || 0,
+                stdDev,
+                aboveMultipliers,
+                totalRounds: total,
+                frequencyDistribution,
+            };
+        }
+
+        function calculateProbabilities(rounds, multipliers) {
+            const total = rounds.length;
+            if (total === 0) return [];
+            return multipliers.map(mult => {
+                const count = rounds.filter(r => r.multiplier >= mult).length;
+                return {
+                    multiplier: mult,
+                    probability: count / total,
+                    sampleSize: total,
+                };
+            });
+        }
+
+        // ============================================================
+        // SIMPLE HASH FUNCTION (for fairness demo)
+        // ============================================================
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash).toString(16).padStart(8, '0');
+        }
+
+        // ============================================================
+        // APPLICATION STATE
+        // ============================================================
+        const state = {
+            simulator: new CrashSimulator(),
+            rounds: [],
+            currentPage: 'dashboard',
+            charts: {},
+            isSimulating: false,
+        };
+
+        // ============================================================
+        // DOM REFERENCES
+        // ============================================================
+        const $ = (id) => document.getElementById(id);
+        const $$ = (sel) => document.querySelectorAll(sel);
+
+        // ============================================================
+        // NAVIGATION
+        // ============================================================
+        function navigateTo(page) {
+            // Hide all pages
+            $$('.page-content').forEach(el => el.classList.add('hidden'));
+
+            // Show target page
+            const target = $(`page-${page}`);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.add('fade-in');
+            }
+
+            // Update nav links
+            $$('.nav-link').forEach(el => {
+                el.classList.toggle('active', el.dataset.page === page);
+            });
+
+            state.currentPage = page;
+
+            // Close mobile nav
+            const mobileNav = $('mobileNav');
+            if (mobileNav) mobileNav.classList.add('hidden');
+
+            // Initialize charts if needed
+            setTimeout(() => {
+                if (page === 'dashboard') initDashboardChart();
+                if (page === 'simulation') initSimulationChart();
+                if (page === 'probability') initProbabilityChart();
+                if (page === 'analyzer') initAnalyzerChart();
+            }, 100);
+        }
+
+        // ============================================================
+        // DASHBOARD
+        // ============================================================
+        let dashboardChartInstance = null;
+
+        function initDashboardChart() {
+            const canvas = $('dashboardChart');
+            if (!canvas) return;
+
+            if (dashboardChartInstance) {
+                dashboardChartInstance.destroy();
+            }
+
+            const ctx = canvas.getContext('2d');
+            const rounds = state.rounds.slice(-50);
+
+            dashboardChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: rounds.map((_, i) => i + 1),
+                    datasets: [{
+                        label: 'Multiplier',
+                        data: rounds.map(r => r.multiplier),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#3b82f6',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#94a3b8' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDashboard() {
+            const stats = calculateStatistics(state.rounds);
+            $('statRounds').textContent = stats.totalRounds;
+            $('statMean').textContent = stats.mean.toFixed(2);
+            $('statMax').textContent = stats.max.toFixed(2);
+            $('statStd').textContent = stats.stdDev.toFixed(2);
+
+            // Update probabilities
+            const probs = calculateProbabilities(state.rounds, [2, 3, 5, 10]);
+            const probMap = {};
+            probs.forEach(p => {
+                probMap[`${p.multiplier}x`] = (p.probability * 100).toFixed(1);
+            });
+
+            const probBars = [
+                { id: 'prob2x', key: '2x' },
+                { id: 'prob3x', key: '3x' },
+                { id: 'prob5x', key: '5x' },
+                { id: 'prob10x', key: '10x' },
+            ];
+
+            probBars.forEach(({ id, key }) => {
+                const pct = probMap[key] || '0.0';
+                const el = $(id);
+                if (el) {
+                    el.textContent = pct + '%';
+                    const bar = el.closest('.flex')?.querySelector('.h-full');
+                    if (bar) {
+                        bar.style.width = Math.min(parseFloat(pct), 100) + '%';
+                    }
+                }
+            });
+
+            // Update chart
+            if (dashboardChartInstance) {
+                const rounds = state.rounds.slice(-50);
+                dashboardChartInstance.data.labels = rounds.map((_, i) => i + 1);
+                dashboardChartInstance.data.datasets[0].data = rounds.map(r => r.multiplier);
+                dashboardChartInstance.update();
+            }
+        }
+
+        // ============================================================
+        // SIMULATION
+        // ============================================================
+        let simulationChartInstance = null;
+
+        function initSimulationChart() {
+            const canvas = $('simulationChart');
+            if (!canvas) return;
+
+            if (simulationChartInstance) {
+                simulationChartInstance.destroy();
+            }
+
+            const ctx = canvas.getContext('2d');
+            const rounds = state.rounds.slice(-50);
+
+            simulationChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: rounds.map((_, i) => i + 1),
+                    datasets: [{
+                        label: 'Multiplier',
+                        data: rounds.map(r => r.multiplier),
+                        borderColor: '#22d3ee',
+                        backgroundColor: 'rgba(34, 211, 238, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#22d3ee',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#94a3b8' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateSimulationUI() {
+            $('simRoundCount').textContent = state.rounds.length;
+
+            // Update results display
+            const container = $('simResults');
+            const recent = state.rounds.slice(-20).reverse();
+            if (recent.length === 0) {
+                container.innerHTML = '<div class="text-gray-400 text-sm">No results yet. Start a simulation!</div>';
+            } else {
+                container.innerHTML = recent.map(r => {
+                    const cls = r.multiplier >= 5 ? 'bg-green-500/20 text-green-400' :
+                        r.multiplier >= 2 ? 'bg-yellow-500/20 text-yellow-400' :
+                        'bg-white/5 text-gray-400';
+                    return `<div class="px-3 py-1 rounded-lg text-sm font-mono ${cls}">${r.multiplier.toFixed(2)}x</div>`;
+                }).join('');
+            }
+
+            // Update chart
+            if (simulationChartInstance) {
+                const rounds = state.rounds.slice(-50);
+                simulationChartInstance.data.labels = rounds.map((_, i) => i + 1);
+                simulationChartInstance.data.datasets[0].data = rounds.map(r => r.multiplier);
+                simulationChartInstance.update();
+            }
+
+            updateDashboard();
+        }
+
+        // Simulation controls
+        let simRunning = false;
+        let simPaused = false;
+
+        $('simStartBtn').addEventListener('click', async function() {
+            if (simRunning) return;
+
+            const speed = parseFloat($('simSpeed').value);
+            state.simulator.setSpeed(speed);
+
+            simRunning = true;
+            simPaused = false;
+            this.disabled = true;
+            this.innerHTML =
+                '<div class="spinner"></div> Running...';
+
+            $('simPauseBtn').disabled = false;
+            $('simPauseBtn').innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Pause
+                    `;
+
+            state.simulator.running = true;
+
+            const roundsToGenerate = 50;
+            for (let i = 0; i < roundsToGenerate && simRunning; i++) {
+                if (simPaused) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    i--;
+                    continue;
+                }
+
+                await state.simulator.simulateRound(
+                    (mult) => {
+                        $('currentMultiplier').textContent = mult.toFixed(2) + 'x';
+                    },
+                    (round) => {
+                        state.rounds.push(round);
+                        updateSimulationUI();
+                        $('currentMultiplier').textContent = round.multiplier.toFixed(2) + 'x';
+                    }
+                );
+
+                // Check if paused
+                if (simPaused) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    i--;
+                }
+            }
+
+            simRunning = false;
+            state.simulator.running = false;
+            this.disabled = false;
+            this.innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Start Simulation
+                    `;
+            $('simPauseBtn').disabled = true;
+        });
+
+        $('simPauseBtn').addEventListener('click', function() {
+            simPaused = !simPaused;
+            if (simPaused) {
+                state.simulator.pause();
+                this.innerHTML = `
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Resume
+                        `;
+            } else {
+                state.simulator.resume();
+                this.innerHTML = `
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Pause
+                        `;
+            }
+        });
+
+        $('simResetBtn').addEventListener('click', function() {
+            simRunning = false;
+            simPaused = false;
+            state.simulator.reset();
+            state.rounds = [];
+            $('currentMultiplier').textContent = '1.00x';
+            updateSimulationUI();
+            $('simStartBtn').disabled = false;
+            $('simStartBtn').innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Start Simulation
+                    `;
+            $('simPauseBtn').disabled = true;
+            $('simPauseBtn').innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Pause
+                    `;
+        });
+
+        $('simSpeed').addEventListener('input', function() {
+            $('simSpeedLabel').textContent = this.value + 'x';
+            state.simulator.setSpeed(parseFloat(this.value));
+        });
+
+        $$('.simBatchBtn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const count = parseInt(this.dataset.count);
+                const rounds = state.simulator.generateRounds(count);
+                state.rounds = state.rounds.concat(rounds);
+                if (rounds.length > 0) {
+                    $('currentMultiplier').textContent = rounds[rounds.length - 1].multiplier.toFixed(2) + 'x';
+                }
+                updateSimulationUI();
+            });
+        });
+
+        // ============================================================
+        // PROBABILITY LAB
+        // ============================================================
+        let probabilityChartInstance = null;
+
+        function initProbabilityChart() {
+            const canvas = $('probabilityChart');
+            if (!canvas) return;
+
+            if (probabilityChartInstance) {
+                probabilityChartInstance.destroy();
+            }
+
+            const ctx = canvas.getContext('2d');
+            probabilityChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Probability',
+                        data: [],
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderColor: '#3b82f6',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#94a3b8' }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return (context.parsed.y * 100).toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    return (value * 100).toFixed(0) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        $('probCalcBtn').addEventListener('click', function() {
+            const sampleSize = parseInt($('probSampleSize').value);
+            const simulator = new CrashSimulator(Date.now().toString());
+            const rounds = simulator.generateRounds(sampleSize);
+
+            const multipliers = [1.2, 1.5, 2, 3, 5, 10, 20, 50, 100];
+            const probs = calculateProbabilities(rounds, multipliers);
+
+            // Show results
+            $('probResults').classList.remove('hidden');
+
+            // Update chart
+            if (probabilityChartInstance) {
+                probabilityChartInstance.data.labels = probs.map(p => p.multiplier + 'x');
+                probabilityChartInstance.data.datasets[0].data = probs.map(p => p.probability);
+                probabilityChartInstance.update();
+            }
+
+            // Update detailed results
+            const container = $('probDetailedResults');
+            container.innerHTML = probs.map(p => `
+                        <div class="p-4 bg-white/5 rounded-xl text-center">
+                            <div class="text-2xl font-bold text-white">${(p.probability * 100).toFixed(1)}%</div>
+                            <div class="text-sm text-gray-400 mt-1">≥ ${p.multiplier}x</div>
+                        </div>
+                    `).join('');
+        });
+
+        // ============================================================
+        // HISTORICAL ANALYZER
+        // ============================================================
+        let analyzerChartInstance = null;
+
+        function initAnalyzerChart() {
+            const canvas = $('analyzerChart');
+            if (!canvas) return;
+
+            if (analyzerChartInstance) {
+                analyzerChartInstance.destroy();
+            }
+
+            const ctx = canvas.getContext('2d');
+            analyzerChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Frequency',
+                        data: [],
+                        backgroundColor: 'rgba(34, 211, 238, 0.7)',
+                        borderColor: '#22d3ee',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#94a3b8' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // CSV Upload
+        $('csvUpload').addEventListener('change', function(e) {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const text = event.target.result;
+                    const lines = text.split('\n');
+                    if (lines.length < 2) {
+                        throw new Error('CSV file must contain at least 2 lines (header + data)');
+                    }
+
+                    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                    const multiplierIndex = headers.indexOf('multiplier');
+
+                    if (multiplierIndex === -1) {
+                        throw new Error('CSV must contain a "multiplier" column');
+                    }
+
+                    const parsedRounds = [];
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+                        const values = line.split(',').map(v => v.trim());
+                        const multiplier = parseFloat(values[multiplierIndex]);
+                        if (isNaN(multiplier)) {
+                            throw new Error(`Invalid multiplier at line ${i + 1}: "${values[multiplierIndex]}"`);
+                        }
+                        parsedRounds.push({
+                            id: i,
+                            multiplier: multiplier,
+                            timestamp: Date.now() - (i * 60000),
+                            isSimulation: false,
+                        });
+                    }
+
+                    if (parsedRounds.length === 0) {
+                        throw new Error('No valid data rows found');
+                    }
+
+                    state.rounds = parsedRounds;
+                    const stats = calculateStatistics(parsedRounds);
+
+                    // Show results
+                    $('analyzerResults').classList.remove('hidden');
+                    $('analyzerStatus').textContent = `${parsedRounds.length} rounds loaded`;
+                    $('exportCsvBtn').disabled = false;
+
+                    // Update stats
+                    $('aMean').textContent = stats.mean.toFixed(2) + 'x';
+                    $('aMedian').textContent = stats.median.toFixed(2) + 'x';
+                    $('aMinMax').textContent = `${stats.min.toFixed(2)} / ${stats.max.toFixed(2)}x`;
+                    $('aStd').textContent = stats.stdDev.toFixed(2);
+
+                    // Update chart
+                    if (analyzerChartInstance) {
+                        analyzerChartInstance.data.labels = stats.frequencyDistribution.map(d => d.range);
+                        analyzerChartInstance.data.datasets[0].data = stats.frequencyDistribution.map(d => d.count);
+                        analyzerChartInstance.update();
+                    }
+
+                    // Hide error
+                    $('csvError').classList.add('hidden');
+
+                    // Update dashboard
+                    updateDashboard();
+
+                } catch (err) {
+                    $('csvErrorMsg').textContent = err.message;
+                    $('csvError').classList.remove('hidden');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // Export CSV
+        $('exportCsvBtn').addEventListener('click', function() {
+            if (state.rounds.length === 0) return;
+
+            const csv = [
+                '# Educational Simulation Data — Not Real Betting Signals',
+                'round,multiplier,isSimulation',
+                ...state.rounds.map(r => `${r.id},${r.multiplier.toFixed(4)},${r.isSimulation}`)
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `crashlab_data_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // ============================================================
+        // FAIRNESS LAB
+        // ============================================================
+        $('fairnessCalcBtn').addEventListener('click', function() {
+            const serverSeed = $('serverSeed').value || 'DEMO_SERVER_SEED_123';
+            const clientSeed = $('clientSeed').value || 'LEARNING_USER_456';
+            const nonce = parseInt($('nonce').value) || 0;
+
+            const combined = `${serverSeed}:${clientSeed}:${nonce}`;
+            const hash = simpleHash(combined);
+            const hashNum = parseInt(hash.slice(0, 8), 16);
+            const random = (hashNum % 100000) / 100000;
+            const multiplier = 1 / (1 - random * 0.99);
+
+            $('fairnessHash').textContent = hash;
+            $('fairnessMultiplier').textContent = Math.round(multiplier * 100) / 100 + 'x';
+            $('fairnessResults').classList.remove('hidden');
+        });
+
+        // ============================================================
+        // NAVIGATION EVENTS
+        // ============================================================
+        $$('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateTo(this.dataset.page);
+            });
+        });
+
+        $('mobileMenuBtn').addEventListener('click', function() {
+            const nav = $('mobileNav');
+            nav.classList.toggle('hidden');
+        });
+
+        // ============================================================
+        // INITIALIZATION
+        // ============================================================
+        // Generate some initial demo data
+        const initialRounds = state.simulator.generateRounds(100);
+        state.rounds = initialRounds;
+        updateDashboard();
+
+        // Initialize charts after render
+        setTimeout(() => {
+            initDashboardChart();
+            initSimulationChart();
+            initProbabilityChart();
+            initAnalyzerChart();
+        }, 100);
+
+        // Handle window resize for charts
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                Object.values(state.charts).forEach(chart => {
+                    if (chart && chart.resize) chart.resize();
+                });
+            }, 250);
+        });
+
+        console.log('🚀 CrashLab AI initialized');
+        console.log('📊 Educational Simulation — Not a Betting Tool');
+        console.log('🔬 Explore probability concepts safely');
+    </script>
+</body>
+</html>
