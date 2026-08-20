@@ -2,1559 +2,2124 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CrashLab AI - Educational Crash Game Simulator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>🛩️ Pro Aviator Terminal</title>
+    <link rel="manifest" id="manifestLink" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <style>
+        /* ───────── Reset & Base ───────── */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        :root {
+            --bg-primary: #070b14;
+            --bg-secondary: #0f172a;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --border-card: rgba(255, 255, 255, 0.08);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-cyan: #22d3ee;
+            --accent-cyan-dim: rgba(34, 211, 238, 0.15);
+            --accent-gold: #fbbf24;
+            --accent-rose: #f87171;
+            --accent-green: #34d399;
+            --accent-purple: #a78bfa;
+            --shadow-glow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: #0f172a;
-            color: #e2e8f0;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            padding-bottom: calc(16px + var(--safe-bottom));
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-cyan);
+            border-radius: 8px;
         }
 
-        .glass {
-            background: rgba(30, 41, 59, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
+        /* ───────── App Container ───────── */
+        .app {
+            max-width: 1500px;
+            width: 100%;
+            background: var(--bg-secondary);
+            border-radius: 32px;
+            padding: 24px 28px 28px;
+            border: 1px solid var(--border-card);
+            box-shadow: var(--shadow-glow);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            position: relative;
         }
 
-        .glass-dark {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
+        /* ───────── Top Bar ───────── */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px 24px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border-card);
+            margin-bottom: 24px;
         }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #60a5fa, #22d3ee);
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .logo span {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-
-        .neon-glow {
-            box-shadow: 0 0 40px rgba(14, 165, 233, 0.1);
+        .logo .badge {
+            font-size: 10px;
+            font-weight: 700;
+            background: var(--accent-cyan-dim);
+            color: var(--accent-cyan);
+            padding: 2px 12px;
+            border-radius: 40px;
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            -webkit-text-fill-color: var(--accent-cyan);
+        }
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .top-stats {
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+        .top-stats .stat {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .top-stats .stat .label {
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-family: 'Inter', sans-serif;
+        }
+        .top-stats .stat .value {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+        .top-stats .stat .value.gold {
+            color: var(--accent-gold);
+        }
+        .top-stats .stat .value.green {
+            color: var(--accent-green);
+        }
+        .top-stats .stat .value.rose {
+            color: var(--accent-rose);
         }
 
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-
-        .nav-link {
-            transition: all 0.3s ease;
+        /* ─── Install Button ─── */
+        .btn-install {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 13px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+        }
+        .btn-install:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.4);
+        }
+        .btn-install:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .btn-install .icon {
+            font-size: 18px;
         }
 
-        .nav-link:hover {
-            background: rgba(255, 255, 255, 0.05);
+        /* ───────── Main Grid ───────── */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .nav-link.active {
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
+        /* ───────── Graph ───────── */
+        .graph-wrapper {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 16px 18px 12px;
+            border: 1px solid var(--border-card);
+            position: relative;
         }
-
-        .multiplier-badge {
-            transition: all 0.3s ease;
+        .graph-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-
-        .multiplier-badge:hover {
-            transform: scale(1.05);
+        .graph-head .left {
+            display: flex;
+            gap: 20px;
+            align-items: center;
         }
-
-        .animate-pulse-slow {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        .graph-head .left .multiplier {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent-gold);
+            transition: color 0.15s;
         }
-
-        @keyframes pulse {
+        .graph-head .left .multiplier.crashed {
+            color: var(--accent-rose);
+        }
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #475569;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .dot.active {
+            background: var(--accent-green);
+            box-shadow: 0 0 16px rgba(52, 211, 153, 0.5);
+            animation: pulse-dot 1s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
             0%,
             100% {
                 opacity: 1;
+                transform: scale(1);
             }
             50% {
-                opacity: 0.5;
+                opacity: 0.3;
+                transform: scale(0.7);
             }
         }
-
-        .scrollbar-thin::-webkit-scrollbar {
-            width: 6px;
+        #graphCanvas {
+            width: 100%;
+            height: 340px;
+            display: block;
+            border-radius: 12px;
+            background: #050a14;
+            cursor: crosshair;
+            touch-action: none;
         }
 
-        .scrollbar-thin::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
+        /* ───────── Controls ───────── */
+        .controls {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 20px 22px 24px;
+            border: 1px solid var(--border-card);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
         }
-
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
+        .ctrl-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
-
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.25);
+        .ctrl-group label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
         }
-
-        @media (max-width: 768px) {
-            .chart-container {
-                height: 200px;
-            }
+        .ctrl-group label .hint {
+            font-weight: 400;
+            color: #64748b;
+            text-transform: none;
         }
-
-        /* Custom range input */
-        input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            background: rgba(255, 255, 255, 0.1);
-            height: 4px;
-            border-radius: 2px;
+        .ctrl-group select,
+        .ctrl-group input {
+            background: #0b111e;
+            border: 1px solid #2d3a4f;
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
             outline: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
+            transition: border 0.2s, box-shadow 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+            width: 100%;
             -webkit-appearance: none;
             appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #3b82f6;
+        }
+        .ctrl-group select:focus,
+        .ctrl-group input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px var(--accent-cyan-dim);
+        }
+        .ctrl-group select option {
+            background: #0b111e;
+        }
+        .ctrl-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .ctrl-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+        .toggle-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: #0b111e;
+            padding: 6px 12px;
+            border-radius: 40px;
+            border: 1px solid #2d3a4f;
+            flex-wrap: wrap;
+        }
+        .toggle-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             cursor: pointer;
-            transition: all 0.2s;
         }
-
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-            background: #60a5fa;
-        }
-
-        input[type="range"]::-moz-range-thumb {
+        .toggle-group input[type="checkbox"] {
             width: 16px;
             height: 16px;
+            accent-color: var(--accent-cyan);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+            width: 100%;
+            letter-spacing: 0.3px;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            transform: none !important;
+            cursor: not-allowed;
+        }
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #22d3ee, #3b82f6);
+            color: #0b111e;
+            box-shadow: 0 4px 20px rgba(34, 211, 238, 0.25);
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(34, 211, 238, 0.35);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.25);
+        }
+        .btn-danger:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.35);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            color: #0b111e;
+            box-shadow: 0 4px 20px rgba(52, 211, 153, 0.25);
+        }
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(52, 211, 153, 0.35);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #334155;
+            color: var(--text-secondary);
+        }
+        .btn-outline:hover:not(:disabled) {
+            border-color: var(--accent-cyan);
+            color: var(--text-primary);
+        }
+        .btn-purple {
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(167, 139, 250, 0.25);
+        }
+        .btn-purple:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(167, 139, 250, 0.35);
+        }
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .status-box {
+            background: #0b111e;
+            border-radius: 12px;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            border-left: 3px solid var(--accent-cyan);
+            font-weight: 500;
+        }
+        .status-box .status-label {
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        .status-box .status-value {
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .status-box .status-value.betting {
+            color: var(--accent-gold);
+        }
+        .status-box .status-value.won {
+            color: var(--accent-green);
+        }
+        .status-box .status-value.lost {
+            color: var(--accent-rose);
+        }
+        .status-box .status-value.idle {
+            color: var(--text-secondary);
+        }
+
+        /* ───────── Speed Slider ───────── */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #0b111e;
+            padding: 4px 12px 4px 16px;
+            border-radius: 40px;
+            border: 1px solid #2d3a4f;
+            flex: 1;
+            min-width: 0;
+        }
+        .speed-control span {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #2d3a4f;
+            border-radius: 4px;
+            outline: none;
+            min-width: 0;
+        }
+        .speed-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--accent-cyan);
             border-radius: 50%;
-            background: #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.4);
+        }
+        .speed-control input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
             cursor: pointer;
             border: none;
         }
-
-        .tab-button {
-            transition: all 0.3s ease;
+        .speed-control .speed-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            min-width: 32px;
+            color: var(--accent-cyan);
         }
 
-        .tab-button.active {
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
+        /* ───────── Dashboard ───────── */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .dash-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 12px 12px 10px;
+            border: 1px solid var(--border-card);
+            text-align: center;
+        }
+        .dash-card .dash-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+        .dash-card .dash-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .dash-card .dash-value.green {
+            color: var(--accent-green);
+        }
+        .dash-card .dash-value.rose {
+            color: var(--accent-rose);
+        }
+        .dash-card .dash-value.gold {
+            color: var(--accent-gold);
+        }
+        .dash-card .dash-value.cyan {
+            color: var(--accent-cyan);
+        }
+        .dash-card .dash-value.purple {
+            color: var(--accent-purple);
         }
 
-        /* Loading spinner */
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top-color: #3b82f6;
+        /* ───────── History & Predictions ───────── */
+        .history-section {
+            margin-top: 4px;
+        }
+        .history-section .history-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .history-section .history-head h3 {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        .history-section .history-head .clear-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 12px;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-weight: 600;
+            padding: 4px 8px;
+        }
+        .history-section .history-head .clear-btn:hover {
+            color: var(--accent-rose);
+        }
+        .history-log {
+            max-height: 140px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding-right: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .history-log .log-item {
+            font-size: 13px;
+            padding: 5px 14px;
+            border-radius: 10px;
+            background: #0b111e;
+            display: flex;
+            justify-content: space-between;
+            border-left: 3px solid #334155;
+            font-family: 'JetBrains Mono', monospace;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .history-log .log-item .log-result {
+            font-weight: 700;
+            font-size: 12px;
+            padding: 0 8px;
+            border-radius: 4px;
+        }
+        .history-log .log-item .log-result.win {
+            color: var(--accent-green);
+        }
+        .history-log .log-item .log-result.loss {
+            color: var(--accent-rose);
+        }
+        .history-log .log-item .log-mult {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+        .history-log .log-item .log-profit {
+            font-weight: 700;
+        }
+        .history-log .empty {
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-align: center;
+            padding: 20px 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* ───────── Predictions panel ───────── */
+        .predictions-panel {
+            background: #0b111e;
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px solid #2d3a4f;
+            margin-top: 4px;
+        }
+        .predictions-panel .pred-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .predictions-panel .pred-head .pred-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        .predictions-panel .pred-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .predictions-panel .pred-item {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 8px 4px;
+            text-align: center;
+            border: 1px solid var(--border-card);
+        }
+        .predictions-panel .pred-item .pred-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .predictions-panel .pred-item .pred-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+        .predictions-panel .pred-item .pred-value.high {
+            color: var(--accent-green);
+        }
+        .predictions-panel .pred-item .pred-value.low {
+            color: var(--accent-rose);
+        }
+        .predictions-panel .pred-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .predictions-panel .pred-actions .btn {
+            flex: 1;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* ───────── Offline Banner ───────── */
+        .offline-banner {
+            display: none;
+            background: rgba(251, 191, 36, 0.12);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 12px;
+            padding: 10px 16px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: var(--accent-gold);
+            text-align: center;
+            font-weight: 500;
+        }
+        .offline-banner.show {
+            display: block;
+        }
+
+        /* ───────── Responsive ───────── */
+        @media (max-width: 640px) {
+            .app {
+                padding: 12px;
+                border-radius: 20px;
+            }
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .top-actions {
+                justify-content: space-between;
+            }
+            .top-stats {
+                justify-content: space-between;
+                font-size: 11px;
+                gap: 8px;
+            }
+            .top-stats .stat .value {
+                font-size: 14px;
+            }
+            .controls .ctrl-row,
+            .controls .ctrl-row-3 {
+                grid-template-columns: 1fr;
+            }
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+            .dash-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+            .graph-head .left .multiplier {
+                font-size: 22px;
+            }
+            #graphCanvas {
+                height: 220px;
+            }
+            .main-grid {
+                gap: 16px;
+            }
+            .predictions-panel .pred-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .btn-install {
+                font-size: 12px;
+                padding: 6px 14px;
+            }
+            .btn-install .icon {
+                font-size: 16px;
+            }
+        }
+        @media (max-width: 400px) {
+            .dash-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .top-stats {
+                font-size: 10px;
+                gap: 4px;
+            }
+            .top-stats .stat .value {
+                font-size: 12px;
+            }
+            .predictions-panel .pred-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* ───────── Utilities ───────── */
+        .mt-1 {
+            margin-top: 4px;
+        }
+        .mb-1 {
+            margin-bottom: 4px;
+        }
+        .flex {
+            display: flex;
+        }
+        .flex-center {
+            align-items: center;
+            gap: 8px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .glow-text {
+            text-shadow: 0 0 20px rgba(34, 211, 238, 0.15);
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        /* ───────── Splash / Loading ───────── */
+        .app-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            font-size: 18px;
+            color: var(--text-secondary);
+            gap: 16px;
+            flex-direction: column;
+        }
+        .app-loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-card);
+            border-top-color: var(--accent-cyan);
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
             animation: spin 0.8s linear infinite;
         }
-
         @keyframes spin {
             to {
                 transform: rotate(360deg);
             }
         }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
     </style>
 </head>
 <body>
-    <div id="app">
-        <!-- Mobile Header -->
-        <header class="lg:hidden fixed top-0 left-0 right-0 z-50 glass-dark p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-xl font-bold gradient-text">CrashLab AI</h1>
-                    <p class="text-xs text-gray-400">Educational Simulation</p>
-                </div>
-                <button id="mobileMenuBtn" class="p-2 rounded-xl hover:bg-white/5 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
-        </header>
 
-        <!-- Mobile Navigation -->
-        <div id="mobileNav" class="lg:hidden fixed inset-0 z-40 bg-dark-200/95 backdrop-blur-xl hidden">
-            <nav class="p-4 space-y-1 mt-16">
-                <a href="#" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-xl" data-page="dashboard">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                    <span class="font-medium">Dashboard</span>
-                </a>
-                <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="simulation">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span class="font-medium">Simulation</span>
-                </a>
-                <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="probability">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                    <span class="font-medium">Probability Lab</span>
-                </a>
-                <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="analyzer">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <span class="font-medium">Analyzer</span>
-                </a>
-                <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="fairness">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    <span class="font-medium">Fairness Lab</span>
-                </a>
-                <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="docs">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                    <span class="font-medium">Documentation</span>
-                </a>
-            </nav>
+    <!-- ─── APP ─── -->
+    <div class="app" id="app">
+        <!-- Loading state (hidden after init) -->
+        <div class="app-loading" id="appLoading">
+            <div class="spinner"></div>
+            <span>Loading Aviator Terminal…</span>
         </div>
 
-        <div class="flex">
-            <!-- Sidebar -->
-            <aside class="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
-                <div class="flex flex-col flex-1 glass m-4 rounded-2xl overflow-hidden">
-                    <div class="p-6 border-b border-white/5">
-                        <h1 class="text-2xl font-bold gradient-text">CrashLab AI</h1>
-                        <p class="text-xs text-gray-400 mt-1">Educational Simulation — Not a Betting Tool</p>
+        <!-- Main content (hidden initially) -->
+        <div id="appContent" style="display:none;">
+
+            <!-- Offline Banner -->
+            <div class="offline-banner" id="offlineBanner">📡 You are offline — some features may be limited.</div>
+
+            <!-- ═══ TOP BAR ═══ -->
+            <div class="topbar">
+                <div class="logo">
+                    🛩️ <span>Pro Aviator</span>
+                    <span class="badge">PWA</span>
+                </div>
+                <div class="top-actions">
+                    <div class="top-stats" id="topStats">
+                        <div class="stat"><span class="label">Balance</span><span class="value gold" id="hBalance">$1,000.00</span></div>
+                        <div class="stat"><span class="label">Profit</span><span class="value green" id="hProfit">+$0.00</span></div>
+                        <div class="stat"><span class="label">Rounds</span><span class="value" id="hRounds">0</span></div>
+                        <div class="stat"><span class="label">Win Rate</span><span class="value" id="hWinRate">0.0%</span></div>
                     </div>
-                    <nav class="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin">
-                        <a href="#" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-xl" data-page="dashboard">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                            <span class="font-medium">Dashboard</span>
-                        </a>
-                        <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="simulation">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span class="font-medium">Simulation</span>
-                        </a>
-                        <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="probability">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                            <span class="font-medium">Probability Lab</span>
-                        </a>
-                        <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="analyzer">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            <span class="font-medium">Historical Analyzer</span>
-                        </a>
-                        <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="fairness">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                            <span class="font-medium">Fairness Lab</span>
-                        </a>
-                        <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl" data-page="docs">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                            <span class="font-medium">Documentation</span>
-                        </a>
-                    </nav>
-                    <div class="p-4 border-t border-white/5">
-                        <div class="glass p-3 rounded-xl">
-                            <p class="text-xs text-gray-400 leading-relaxed">
-                                ⚠️ This is an educational simulator. It cannot predict real outcomes or guarantee winnings.
-                            </p>
+                    <button class="btn-install" id="installBtn" disabled>
+                        <span class="icon">📲</span> Install App
+                    </button>
+                </div>
+            </div>
+
+            <!-- ═══ MAIN ═══ -->
+            <div class="main-grid">
+                <!-- Graph -->
+                <div class="graph-wrapper">
+                    <div class="graph-head">
+                        <div class="left">
+                            <span>Round #<strong id="roundNum">0</strong></span>
+                            <span class="multiplier" id="currentMult">1.00×</span>
                         </div>
+                        <div class="live-indicator">
+                            <span class="dot" id="liveDot"></span>
+                            <span id="gameStatusText" style="font-size:13px;color:var(--text-secondary);font-weight:600;">Idle</span>
+                        </div>
+                    </div>
+                    <canvas id="graphCanvas"></canvas>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls" id="controls">
+                    <!-- Strategy -->
+                    <div class="ctrl-group">
+                        <label>Strategy <span class="hint">Bet sizing</span></label>
+                        <select id="strategySelect">
+                            <option value="martingale">Martingale</option>
+                            <option value="antimartingale">Anti‑Martingale</option>
+                            <option value="fibonacci">Fibonacci</option>
+                            <option value="dalembert">D'Alembert</option>
+                            <option value="oscar">Oscar's Grind</option>
+                            <option value="labouchere">Labouchere</option>
+                            <option value="paroli">Paroli (1-3-2-6)</option>
+                            <option value="kelly">Kelly Criterion</option>
+                            <option value="fixed" selected>Fixed Bet</option>
+                        </select>
+                    </div>
+
+                    <!-- Betting & Targets -->
+                    <div class="ctrl-row">
+                        <div class="ctrl-group">
+                            <label>Base Bet ($)</label>
+                            <input type="number" id="baseBet" value="10" min="0.5" step="0.5" />
+                        </div>
+                        <div class="ctrl-group">
+                            <label>Target Multiplier</label>
+                            <input type="number" id="targetMult" value="2.0" min="1.05" step="0.05" />
+                        </div>
+                    </div>
+
+                    <!-- Advanced Toggles -->
+                    <div class="ctrl-row">
+                        <div class="toggle-group">
+                            <label><input type="checkbox" id="dynamicTarget" /> 🎯 Dynamic</label>
+                            <label><input type="checkbox" id="trailingStop" /> 📉 Trailing</label>
+                        </div>
+                        <div class="speed-control">
+                            <span>⚡</span>
+                            <input type="range" id="speedSlider" min="0.2" max="8" step="0.1" value="1.0" />
+                            <span class="speed-val" id="speedVal">1.0×</span>
+                        </div>
+                    </div>
+
+                    <!-- Risk Limits -->
+                    <div class="ctrl-row-3">
+                        <div class="ctrl-group">
+                            <label>Stop Loss ($)</label>
+                            <input type="number" id="stopLoss" value="100" min="0" step="10" />
+                        </div>
+                        <div class="ctrl-group">
+                            <label>Take Profit ($)</label>
+                            <input type="number" id="takeProfit" value="300" min="0" step="10" />
+                        </div>
+                        <div class="ctrl-group">
+                            <label>Max Rounds</label>
+                            <input type="number" id="maxRounds" value="50" min="1" step="1" />
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="btn-group">
+                        <button class="btn btn-success" id="startBtn">▶ Start Bot</button>
+                        <button class="btn btn-danger" id="stopBtn" disabled>⏹ Stop</button>
+                    </div>
+                    <button class="btn btn-outline" id="resetBtn" style="padding:8px;font-size:13px;">⟳ Reset Terminal</button>
+
+                    <!-- Status -->
+                    <div class="status-box">
+                        <span class="status-label">Bot Status</span>
+                        <span class="status-value idle" id="botStatus">● Idle</span>
+                    </div>
+
+                    <!-- ─── Predictions Panel ─── -->
+                    <div class="predictions-panel">
+                        <div class="pred-head">
+                            <span class="pred-title">🔮 Next 5 Predictions</span>
+                            <button class="btn btn-purple" id="predictBtn" style="padding:4px 14px;font-size:12px;width:auto;">Generate</button>
+                        </div>
+                        <div class="pred-grid" id="predGrid">
+                            <div class="pred-item"><div class="pred-label">#1</div><div class="pred-value">—</div></div>
+                            <div class="pred-item"><div class="pred-label">#2</div><div class="pred-value">—</div></div>
+                            <div class="pred-item"><div class="pred-label">#3</div><div class="pred-value">—</div></div>
+                            <div class="pred-item"><div class="pred-label">#4</div><div class="pred-value">—</div></div>
+                            <div class="pred-item"><div class="pred-label">#5</div><div class="pred-value">—</div></div>
+                        </div>
+                        <div style="font-size:11px;color:#64748b;margin-top:6px;text-align:center;">
+                            ⚡ Predicted crash multipliers (based on live distribution)
+                        </div>
+                    </div>
+
+                    <div style="font-size:11px;color:#475569;text-align:center;border-top:1px solid #1e293b;padding-top:12px;">
+                        ⌨️ Enter=Start · Space=Stop · R=Reset · P=Predict
                     </div>
                 </div>
-            </aside>
+            </div>
 
-            <!-- Main Content -->
-            <main class="flex-1 lg:pl-72">
-                <div class="p-4 md:p-6 max-w-7xl mx-auto">
-                    <!-- Dashboard Page -->
-                    <div id="page-dashboard" class="page-content fade-in">
-                        <div class="space-y-6">
-                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                <div>
-                                    <h1 class="text-3xl font-bold gradient-text">Dashboard</h1>
-                                    <p class="text-gray-400 mt-1">Crash Game Probability Research Laboratory</p>
-                                </div>
-                                <div class="flex items-center gap-2 px-4 py-2 glass rounded-xl">
-                                    <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                    <span class="text-xs text-gray-300">Educational Simulation — Not a Betting Tool</span>
-                                </div>
-                            </div>
+            <!-- ═══ DASHBOARD ═══ -->
+            <div class="dash-grid" id="dashGrid">
+                <div class="dash-card"><div class="dash-value gold" id="dTotalBets">0</div><div class="dash-label">Total Bets</div></div>
+                <div class="dash-card"><div class="dash-value green" id="dWins">0</div><div class="dash-label">Wins</div></div>
+                <div class="dash-card"><div class="dash-value rose" id="dLosses">0</div><div class="dash-label">Losses</div></div>
+                <div class="dash-card"><div class="dash-value purple" id="dAvgMult">0.00×</div><div class="dash-label">Avg Crash</div></div>
+                <div class="dash-card"><div class="dash-value cyan" id="dBestMult">0.00×</div><div class="dash-label">Best Win</div></div>
+                <div class="dash-card"><div class="dash-value" id="dStreak" style="color:var(--accent-gold);">0</div><div class="dash-label">Streak</div></div>
+                <div class="dash-card"><div class="dash-value" id="dProfitFactor" style="color:#e2e8f0;">0.00</div><div class="dash-label">Profit Factor</div></div>
+                <div class="dash-card"><div class="dash-value" id="dDrawdown" style="color:#fbbf24;">0.0%</div><div class="dash-label">Max Drawdown</div></div>
+            </div>
 
-                            <!-- Stats Grid -->
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="dashboardStats">
-                                <div class="glass p-6 rounded-2xl">
-                                    <div class="flex items-center justify-between">
-                                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                                        <span class="text-2xl font-bold text-white" id="statRounds">0</span>
-                                    </div>
-                                    <p class="text-sm text-gray-400 mt-2">Total Rounds</p>
-                                </div>
-                                <div class="glass p-6 rounded-2xl">
-                                    <div class="flex items-center justify-between">
-                                        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                        <span class="text-2xl font-bold text-white" id="statMean">0.00</span>
-                                    </div>
-                                    <p class="text-sm text-gray-400 mt-2">Average Multiplier</p>
-                                </div>
-                                <div class="glass p-6 rounded-2xl">
-                                    <div class="flex items-center justify-between">
-                                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                                        <span class="text-2xl font-bold text-white" id="statMax">0.00</span>
-                                    </div>
-                                    <p class="text-sm text-gray-400 mt-2">Max Multiplier</p>
-                                </div>
-                                <div class="glass p-6 rounded-2xl">
-                                    <div class="flex items-center justify-between">
-                                        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
-                                        <span class="text-2xl font-bold text-white" id="statStd">0.00</span>
-                                    </div>
-                                    <p class="text-sm text-gray-400 mt-2">Std Deviation</p>
-                                </div>
-                            </div>
-
-                            <!-- Chart -->
-                            <div class="glass p-6 rounded-2xl">
-                                <h2 class="text-lg font-semibold text-white mb-4">Recent Rounds</h2>
-                                <div class="chart-container">
-                                    <canvas id="dashboardChart"></canvas>
-                                </div>
-                            </div>
-
-                            <!-- Probability Overview -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="glass p-6 rounded-2xl">
-                                    <h2 class="text-lg font-semibold text-white mb-4">Key Probabilities</h2>
-                                    <div class="space-y-3" id="probabilityOverview">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-gray-400">≥ 2.00x</span>
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
-                                                    <div class="h-full bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full" style="width: 0%"></div>
-                                                </div>
-                                                <span class="text-sm text-white font-medium" id="prob2x">0%</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-gray-400">≥ 3.00x</span>
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
-                                                    <div class="h-full bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full" style="width: 0%"></div>
-                                                </div>
-                                                <span class="text-sm text-white font-medium" id="prob3x">0%</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-gray-400">≥ 5.00x</span>
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
-                                                    <div class="h-full bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full" style="width: 0%"></div>
-                                                </div>
-                                                <span class="text-sm text-white font-medium" id="prob5x">0%</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-gray-400">≥ 10.00x</span>
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
-                                                    <div class="h-full bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full" style="width: 0%"></div>
-                                                </div>
-                                                <span class="text-sm text-white font-medium" id="prob10x">0%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="glass p-6 rounded-2xl">
-                                    <h2 class="text-lg font-semibold text-white mb-4">Educational Note</h2>
-                                    <div class="space-y-3 text-sm text-gray-300 leading-relaxed">
-                                        <p>📊 These statistics describe <strong>observed patterns</strong> in the simulated dataset.</p>
-                                        <p>🔄 Historical results do <strong>not</strong> predict future independent crash points.</p>
-                                        <p>🎯 Each round is generated using a random process where past outcomes have no influence on future outcomes.</p>
-                                        <p class="mt-4 text-xs text-gray-400">⚠️ This is an educational tool for understanding probability and statistics in random processes.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Gambler's Fallacy Warning -->
-                            <div class="glass border border-yellow-500/20 bg-yellow-500/5 p-6 rounded-2xl">
-                                <div class="flex items-start gap-3">
-                                    <svg class="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                    <div>
-                                        <h3 class="text-sm font-semibold text-yellow-400">Gambler's Fallacy Warning</h3>
-                                        <p class="text-sm text-gray-300 mt-1">In independent random events (like crash game multipliers), previous results <strong>do not</strong> affect future results. A series of low multipliers does not make a high multiplier more likely.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Simulation Page -->
-                    <div id="page-simulation" class="page-content fade-in hidden">
-                        <div class="space-y-6">
-                            <div>
-                                <h1 class="text-3xl font-bold gradient-text">Live Simulation</h1>
-                                <p class="text-gray-400 mt-1">Simulate crash game rounds using a mathematical random engine</p>
-                            </div>
-
-                            <!-- Controls -->
-                            <div class="glass p-6 rounded-2xl">
-                                <div class="flex flex-wrap items-center gap-4">
-                                    <button id="simStartBtn" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-xl flex items-center gap-2 font-medium transition-colors">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        Start Simulation
-                                    </button>
-                                    <button id="simPauseBtn" class="px-6 py-3 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl flex items-center gap-2 font-medium transition-colors" disabled>
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        Pause
-                                    </button>
-                                    <button id="simResetBtn" class="px-6 py-3 bg-white/5 hover:bg-white/10 rounded-xl flex items-center gap-2 font-medium transition-colors">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                        Reset
-                                    </button>
-                                    <div class="flex items-center gap-2 ml-auto">
-                                        <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                                        <input type="range" id="simSpeed" min="0.5" max="5" step="0.5" value="1" class="w-32 accent-blue-500" />
-                                        <span class="text-sm text-gray-400" id="simSpeedLabel">1x</span>
-                                    </div>
-                                </div>
-
-                                <div class="flex flex-wrap gap-2 mt-4">
-                                    <button class="simBatchBtn px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors" data-count="10">10 rounds</button>
-                                    <button class="simBatchBtn px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors" data-count="100">100 rounds</button>
-                                    <button class="simBatchBtn px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors" data-count="1000">1,000 rounds</button>
-                                    <button class="simBatchBtn px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors" data-count="10000">10,000 rounds</button>
-                                </div>
-                            </div>
-
-                            <!-- Current Multiplier -->
-                            <div class="glass p-6 rounded-2xl text-center">
-                                <div class="text-6xl font-bold gradient-text font-mono" id="currentMultiplier">1.00x</div>
-                                <p class="text-sm text-gray-400 mt-2">Current Multiplier</p>
-                            </div>
-
-                            <!-- Chart -->
-                            <div class="glass p-6 rounded-2xl">
-                                <h2 class="text-lg font-semibold text-white mb-4">Recent Rounds</h2>
-                                <div class="chart-container">
-                                    <canvas id="simulationChart"></canvas>
-                                </div>
-                            </div>
-
-                            <!-- Recent Results -->
-                            <div class="glass p-6 rounded-2xl">
-                                <h2 class="text-lg font-semibold text-white mb-4">Recent Results (<span id="simRoundCount">0</span> total)</h2>
-                                <div class="flex flex-wrap gap-2 max-h-48 overflow-y-auto scrollbar-thin" id="simResults">
-                                    <div class="text-gray-400 text-sm">No results yet. Start a simulation!</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Probability Lab Page -->
-                    <div id="page-probability" class="page-content fade-in hidden">
-                        <div class="space-y-6">
-                            <div>
-                                <h1 class="text-3xl font-bold gradient-text">Probability Lab</h1>
-                                <p class="text-gray-400 mt-1">Estimate probabilities of reaching different multipliers</p>
-                            </div>
-
-                            <div class="glass p-6 rounded-2xl">
-                                <div class="flex flex-wrap items-end gap-4">
-                                    <div>
-                                        <label class="block text-sm text-gray-400 mb-2">Sample Size</label>
-                                        <select id="probSampleSize" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            <option value="100">100 rounds</option>
-                                            <option value="1000" selected>1,000 rounds</option>
-                                            <option value="10000">10,000 rounds</option>
-                                            <option value="100000">100,000 rounds</option>
-                                        </select>
-                                    </div>
-                                    <button id="probCalcBtn" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-xl font-medium transition-colors">Calculate Probabilities</button>
-                                </div>
-                            </div>
-
-                            <div id="probResults" class="hidden">
-                                <div class="glass p-6 rounded-2xl">
-                                    <h2 class="text-lg font-semibold text-white mb-4">Probability Estimates</h2>
-                                    <div class="chart-container">
-                                        <canvas id="probabilityChart"></canvas>
-                                    </div>
-                                </div>
-
-                                <div class="glass p-6 rounded-2xl">
-                                    <h2 class="text-lg font-semibold text-white mb-4">Detailed Results</h2>
-                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3" id="probDetailedResults"></div>
-                                </div>
-
-                                <div class="glass border border-blue-500/20 bg-blue-500/5 p-6 rounded-2xl">
-                                    <div class="flex items-start gap-3">
-                                        <svg class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                        <div>
-                                            <h3 class="text-sm font-semibold text-blue-400">Educational Note</h3>
-                                            <p class="text-sm text-gray-300 mt-1">These are <strong>probability estimates</strong> based on simulated data. They describe the statistical distribution of the random process, not predictions of specific future outcomes.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Historical Analyzer Page -->
-                    <div id="page-analyzer" class="page-content fade-in hidden">
-                        <div class="space-y-6">
-                            <div>
-                                <h1 class="text-3xl font-bold gradient-text">Historical Analyzer</h1>
-                                <p class="text-gray-400 mt-1">Upload and analyze historical crash data</p>
-                            </div>
-
-                            <div class="glass p-6 rounded-2xl">
-                                <div class="flex flex-wrap items-center gap-4">
-                                    <label class="cursor-pointer">
-                                        <div class="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-xl flex items-center gap-2 font-medium transition-colors">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                            Upload CSV
-                                        </div>
-                                        <input type="file" id="csvUpload" accept=".csv" class="hidden" />
-                                    </label>
-                                    <button id="exportCsvBtn" class="px-6 py-3 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl flex items-center gap-2 font-medium transition-colors" disabled>
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                        Export CSV
-                                    </button>
-                                    <div class="text-sm text-gray-400" id="analyzerStatus">No data loaded</div>
-                                </div>
-                                <div id="csvError" class="mt-4 hidden p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-2">
-                                    <svg class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <p class="text-sm text-red-400" id="csvErrorMsg"></p>
-                                </div>
-                            </div>
-
-                            <div id="analyzerResults" class="hidden">
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="analyzerStats">
-                                    <div class="glass p-4 rounded-xl">
-                                        <p class="text-sm text-gray-400">Mean</p>
-                                        <p class="text-2xl font-bold text-white" id="aMean">0.00x</p>
-                                    </div>
-                                    <div class="glass p-4 rounded-xl">
-                                        <p class="text-sm text-gray-400">Median</p>
-                                        <p class="text-2xl font-bold text-white" id="aMedian">0.00x</p>
-                                    </div>
-                                    <div class="glass p-4 rounded-xl">
-                                        <p class="text-sm text-gray-400">Min / Max</p>
-                                        <p class="text-2xl font-bold text-white" id="aMinMax">0.00 / 0.00x</p>
-                                    </div>
-                                    <div class="glass p-4 rounded-xl">
-                                        <p class="text-sm text-gray-400">Std Deviation</p>
-                                        <p class="text-2xl font-bold text-white" id="aStd">0.00</p>
-                                    </div>
-                                </div>
-
-                                <div class="glass p-6 rounded-2xl">
-                                    <h2 class="text-lg font-semibold text-white mb-4">Frequency Distribution</h2>
-                                    <div class="chart-container">
-                                        <canvas id="analyzerChart"></canvas>
-                                    </div>
-                                </div>
-
-                                <div class="glass border border-yellow-500/20 bg-yellow-500/5 p-6 rounded-2xl">
-                                    <div class="flex items-start gap-3">
-                                        <svg class="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                        <div>
-                                            <h3 class="text-sm font-semibold text-yellow-400">Important: Historical Analysis</h3>
-                                            <p class="text-sm text-gray-300 mt-1">These statistics describe <strong>past data only</strong>. They cannot predict future independent random events. The presence of patterns in historical data does not imply predictability.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Fairness Lab Page -->
-                    <div id="page-fairness" class="page-content fade-in hidden">
-                        <div class="space-y-6">
-                            <div>
-                                <h1 class="text-3xl font-bold gradient-text">Fairness Lab</h1>
-                                <p class="text-gray-400 mt-1">Educational demonstration of provably-fair concepts</p>
-                            </div>
-
-                            <div class="glass p-6 rounded-2xl">
-                                <h2 class="text-lg font-semibold text-white mb-4">Provably-Fair Demonstration</h2>
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm text-gray-400 mb-2">Server Seed (Demo)</label>
-                                        <input type="text" id="serverSeed" value="DEMO_SERVER_SEED_123" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm text-gray-400 mb-2">Client Seed (Demo)</label>
-                                        <input type="text" id="clientSeed" value="LEARNING_USER_456" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm text-gray-400 mb-2">Nonce</label>
-                                        <input type="number" id="nonce" value="27" min="0" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </div>
-                                    <button id="fairnessCalcBtn" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-xl font-medium transition-colors">Calculate Demo Result</button>
-                                </div>
-                            </div>
-
-                            <div id="fairnessResults" class="hidden">
-                                <div class="glass p-6 rounded-2xl">
-                                    <h2 class="text-lg font-semibold text-white mb-4">Verification Result</h2>
-                                    <div class="space-y-3">
-                                        <div class="flex justify-between items-center p-3 bg-white/5 rounded-xl">
-                                            <span class="text-gray-400">Hash</span>
-                                            <span class="font-mono text-sm text-white" id="fairnessHash">-</span>
-                                        </div>
-                                        <div class="flex justify-between items-center p-3 bg-white/5 rounded-xl">
-                                            <span class="text-gray-400">Demo Multiplier</span>
-                                            <span class="font-mono text-2xl font-bold gradient-text" id="fairnessMultiplier">0.00x</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="glass border border-blue-500/20 bg-blue-500/5 p-6 rounded-2xl">
-                                    <div class="flex items-start gap-3">
-                                        <svg class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                        <div>
-                                            <h3 class="text-sm font-semibold text-blue-400">Educational Note</h3>
-                                            <p class="text-sm text-gray-300 mt-1">Verification demonstrates reproducibility of a completed simulated round. It does NOT predict future real-game rounds.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Documentation Page -->
-                    <div id="page-docs" class="page-content fade-in hidden">
-                        <div class="space-y-6">
-                            <div>
-                                <h1 class="text-3xl font-bold gradient-text">Documentation</h1>
-                                <p class="text-gray-400 mt-1">Learn about the simulation methodology and probability concepts</p>
-                            </div>
-
-                            <div class="glass p-6 rounded-2xl space-y-6">
-                                <div>
-                                    <h2 class="text-xl font-semibold text-white mb-2">Project Purpose</h2>
-                                    <p class="text-gray-300">CrashLab AI is a sophisticated educational application designed to demonstrate why future crash multipliers in Aviator-style games cannot be reliably predicted from previous rounds. It serves as a probability research laboratory for understanding random processes, statistical distributions, and the gambler's fallacy.</p>
-                                    <p class="text-yellow-400 text-sm mt-2">⚠️ This is an educational simulator — NOT a betting tool.</p>
-                                </div>
-
-                                <div>
-                                    <h2 class="text-xl font-semibold text-white mb-2">Simulation Methodology</h2>
-                                    <p class="text-gray-300">The simulator uses a deterministic random number generator with seeding to produce crash points following an exponential distribution:</p>
-                                    <div class="mt-2 p-4 bg-white/5 rounded-xl font-mono text-sm text-gray-300">
-                                        generateCrashPoint(seed) {<br />
-                                        &nbsp;&nbsp;random = generateRandom(seed);<br />
-                                        &nbsp;&nbsp;return 1 / (1 - random * 0.99);<br />
-                                        }
-                                    </div>
-                                    <p class="text-gray-300 mt-2">This produces a distribution where:</p>
-                                    <ul class="list-disc list-inside text-gray-300 mt-1 space-y-1">
-                                        <li>Most rounds crash between 1.00x and 2.00x</li>
-                                        <li>Higher multipliers are progressively rarer</li>
-                                        <li>Each round is independent of all previous rounds</li>
-                                    </ul>
-                                </div>
-
-                                <div>
-                                    <h2 class="text-xl font-semibold text-white mb-2">Probability Concepts</h2>
-                                    <h3 class="text-lg font-medium text-white mt-4 mb-2">Independent Events</h3>
-                                    <p class="text-gray-300">Each crash point is generated independently. Previous results do not influence future results.</p>
-                                    <h3 class="text-lg font-medium text-white mt-4 mb-2">Distribution Convergence</h3>
-                                    <p class="text-gray-300">As the number of simulated rounds increases, observed probabilities converge to theoretical probabilities (Law of Large Numbers).</p>
-                                    <h3 class="text-lg font-medium text-white mt-4 mb-2">Gambler's Fallacy</h3>
-                                    <p class="text-gray-300">The mistaken belief that past independent events affect future independent events. For example: "The last 10 rounds were low, so a high round is due."</p>
-                                </div>
-
-                                <div>
-                                    <h2 class="text-xl font-semibold text-white mb-2">Why Historical Patterns Cannot Predict Independent Rounds</h2>
-                                    <ol class="list-decimal list-inside text-gray-300 space-y-1">
-                                        <li><strong>Memoryless Property:</strong> Each round is independent</li>
-                                        <li><strong>No Causality:</strong> Past results don't cause future results</li>
-                                        <li><strong>Random Seed:</strong> Each round uses a different seed</li>
-                                        <li><strong>Unpredictable:</strong> The crash point is uniformly random within the distribution</li>
-                                    </ol>
-                                </div>
-
-                                <div>
-                                    <h2 class="text-xl font-semibold text-white mb-2">Responsible-Use Disclaimer</h2>
-                                    <p class="text-gray-300">This application is designed for educational purposes only. It does not:</p>
-                                    <ul class="list-disc list-inside text-gray-300 mt-1 space-y-1">
-                                        <li>Predict real game outcomes</li>
-                                        <li>Guarantee winnings</li>
-                                        <li>Provide betting signals</li>
-                                        <li>Connect to gambling operators</li>
-                                        <li>Automate wagers or deposits</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- ═══ HISTORY ═══ -->
+            <div class="history-section">
+                <div class="history-head">
+                    <h3>📋 Round Ledger</h3>
+                    <button class="clear-btn" id="clearHistoryBtn">Clear all</button>
                 </div>
-            </main>
+                <div class="history-log" id="historyLog">
+                    <div class="empty">No rounds logged yet</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // ============================================================
-        // CORE SIMULATION ENGINE
-        // ============================================================
-        class CrashSimulator {
-            constructor(seed = Date.now().toString()) {
-                this.seed = seed;
-                this.rounds = [];
-                this.isRunning = false;
-                this.isPaused = false;
-                this.currentMultiplier = 1.0;
-                this.roundId = 0;
-                this.speed = 1;
-                this.running = false;
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PRO AVIATOR TERMINAL  v4 — PWA Edition
+        //  Custom Icon: Dark Navy + White Airliner + Cyan Swoosh + Gradient Text
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        (() => {
+            'use strict';
+
+            // ─── Custom App Icon (SVG) ───
+            // Matches description: glossy 3D, dark navy bg, white airliner angled up,
+            // cyan swoosh, "Pro Aviator" cyan→purple gradient, small plane icon with accents.
+            const ICON_SVG = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+                    <defs>
+                        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0a1628" />
+                            <stop offset="100%" stop-color="#0f172a" />
+                        </linearGradient>
+                        <linearGradient id="swooshGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.6" />
+                            <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.1" />
+                        </linearGradient>
+                        <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#22d3ee" />
+                            <stop offset="100%" stop-color="#a78bfa" />
+                        </linearGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                        <filter id="shadow">
+                            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.5" />
+                        </filter>
+                    </defs>
+
+                    <!-- Background with subtle 3D border -->
+                    <rect width="512" height="512" rx="96" fill="url(#bgGrad)" stroke="#1e293b" stroke-width="2" />
+                    <rect x="4" y="4" width="504" height="504" rx="92" fill="none" stroke="rgba(34,211,238,0.08)" stroke-width="1" />
+
+                    <!-- Glossy overlay (top-left highlight) -->
+                    <ellipse cx="160" cy="120" rx="200" ry="120" fill="rgba(255,255,255,0.03)" transform="rotate(-30, 160, 120)" />
+
+                    <!-- Dynamic Swoosh (cyan to purple) -->
+                    <path d="M 80 420 Q 180 340, 280 280 Q 380 220, 440 260 Q 460 280, 420 320 Q 360 380, 240 400 Q 140 420, 80 420 Z"
+                        fill="url(#swooshGrad)" opacity="0.7" />
+
+                    <!-- Main Airliner (white, angled upward, glossy) -->
+                    <g transform="translate(256, 220) rotate(-12) scale(1.1)" filter="url(#shadow)">
+                        <!-- Fuselage -->
+                        <ellipse cx="0" cy="0" rx="90" ry="22" fill="#f8fafc" />
+                        <ellipse cx="0" cy="0" rx="90" ry="22" fill="url(#swooshGrad)" opacity="0.08" />
+                        <!-- Cockpit windows -->
+                        <ellipse cx="60" cy="-4" rx="16" ry="10" fill="#0a1628" />
+                        <ellipse cx="60" cy="-4" rx="14" ry="8" fill="#22d3ee" opacity="0.4" />
+                        <!-- Passenger windows -->
+                        <circle cx="20" cy="-6" r="4" fill="#0a1628" opacity="0.3" />
+                        <circle cx="0" cy="-6" r="4" fill="#0a1628" opacity="0.3" />
+                        <circle cx="-20" cy="-6" r="4" fill="#0a1628" opacity="0.3" />
+                        <circle cx="-40" cy="-6" r="4" fill="#0a1628" opacity="0.3" />
+                        <!-- Left Wing -->
+                        <polygon points="-30,-10 -100,-60 -80,-50 -20,-8" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1" />
+                        <polygon points="-30,-10 -100,-60 -80,-50 -20,-8" fill="rgba(34,211,238,0.05)" />
+                        <!-- Right Wing -->
+                        <polygon points="-30,10 -100,60 -80,50 -20,8" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1" />
+                        <polygon points="-30,10 -100,60 -80,50 -20,8" fill="rgba(34,211,238,0.05)" />
+                        <!-- Tail -->
+                        <polygon points="-80,-10 -130,-40 -120,-15" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1" />
+                        <polygon points="-80,10 -130,40 -120,15" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1" />
+                        <!-- Engine glow (cyan) -->
+                        <ellipse cx="-100" cy="-55" rx="12" ry="6" fill="#22d3ee" opacity="0.3" />
+                        <ellipse cx="-100" cy="55" rx="12" ry="6" fill="#22d3ee" opacity="0.3" />
+                    </g>
+
+                    <!-- "Pro Aviator" Text (cyan → purple gradient) -->
+                    <text x="256" y="400" font-family="'Inter','Segoe UI',sans-serif" font-size="52" font-weight="800"
+                        text-anchor="middle" fill="url(#textGrad)" filter="url(#glow)" letter-spacing="2">
+                        Pro Aviator
+                    </text>
+
+                    <!-- Small plane icon with accents (below text) -->
+                    <g transform="translate(256, 440)">
+                        <line x1="-50" y1="0" x2="-20" y2="0" stroke="#22d3ee" stroke-width="2" opacity="0.5" stroke-linecap="round" />
+                        <text x="0" y="6" font-size="24" text-anchor="middle">✈️</text>
+                        <line x1="20" y1="0" x2="50" y2="0" stroke="#a78bfa" stroke-width="2" opacity="0.5" stroke-linecap="round" />
+                    </g>
+
+                    <!-- 3D glossy edge highlight (bottom-right) -->
+                    <path d="M 416 416 Q 480 340, 480 480 Q 340 480, 416 416 Z" fill="rgba(255,255,255,0.02)" />
+
+                    <!-- Subtle cyan ring -->
+                    <circle cx="256" cy="256" r="200" fill="none" stroke="#22d3ee" stroke-width="0.5" opacity="0.1" />
+                </svg>
+            `;
+
+            // ─── PWA: Manifest & Service Worker ───
+
+            // 1. Generate manifest with custom icon
+            function generateManifest() {
+                const iconData = 'data:image/svg+xml,' + encodeURIComponent(ICON_SVG);
+                const manifest = {
+                    name: 'Pro Aviator Terminal',
+                    short_name: 'Aviator Pro',
+                    description: 'Professional Aviator bot simulator with advanced strategies',
+                    start_url: window.location.href.split('?')[0],
+                    display: 'standalone',
+                    orientation: 'portrait',
+                    background_color: '#070b14',
+                    theme_color: '#0f172a',
+                    icons: [{
+                        src: iconData,
+                        sizes: '512x512',
+                        type: 'image/svg+xml',
+                        purpose: 'any maskable'
+                    }, {
+                        src: iconData,
+                        sizes: '192x192',
+                        type: 'image/svg+xml',
+                        purpose: 'any maskable'
+                    }]
+                };
+                const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                document.getElementById('manifestLink').href = url;
+                return url;
             }
 
-            generateRandom(seed) {
-                let hash = 0;
-                for (let i = 0; i < seed.length; i++) {
-                    const char = seed.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash;
-                }
-                const x = Math.sin(hash) * 10000;
-                return x - Math.floor(x);
-            }
+            // 2. Register service worker
+            function registerServiceWorker() {
+                const swCode = `
+                    const CACHE_NAME = 'aviator-pro-v2';
+                    const ASSETS = [
+                        '/',
+                        '${window.location.href}'
+                    ];
 
-            generateCrashPoint(seed) {
-                const random = this.generateRandom(seed);
-                const crashPoint = 1 / (1 - random * 0.99);
-                return Math.round(crashPoint * 100) / 100;
-            }
-
-            generateRounds(count) {
-                const results = [];
-                for (let i = 0; i < count; i++) {
-                    const seed = `${this.seed}_${i}_${Date.now()}`;
-                    const multiplier = this.generateCrashPoint(seed);
-                    results.push({
-                        id: this.roundId++,
-                        multiplier,
-                        timestamp: Date.now(),
-                        isSimulation: true,
-                        seed: seed,
+                    self.addEventListener('install', e => {
+                        e.waitUntil(
+                            caches.open(CACHE_NAME).then(cache => {
+                                return cache.addAll(ASSETS).catch(() => {});
+                            }).then(() => self.skipWaiting())
+                        );
                     });
+
+                    self.addEventListener('activate', e => {
+                        e.waitUntil(
+                            caches.keys().then(keys => {
+                                return Promise.all(
+                                    keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+                                );
+                            }).then(() => self.clients.claim())
+                        );
+                    });
+
+                    self.addEventListener('fetch', e => {
+                        e.respondWith(
+                            caches.match(e.request).then(res => {
+                                return res || fetch(e.request).catch(() => {
+                                    return new Response('Offline', { status: 503 });
+                                });
+                            })
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register(swUrl, { scope: '/' })
+                        .then(reg => {
+                            console.log('✅ Service Worker registered with custom icon');
+                            reg.update();
+                        })
+                        .catch(err => {
+                            console.warn('⚠️ Service Worker registration failed:', err);
+                        });
                 }
-                return results;
             }
 
-            setSpeed(speed) {
-                this.speed = Math.max(0.1, Math.min(10, speed));
+            // 3. Install button logic
+            let deferredPrompt = null;
+            const installBtn = document.getElementById('installBtn');
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installBtn.disabled = false;
+                installBtn.textContent = '📲 Install App';
+                console.log('📲 Install prompt ready');
+            });
+
+            window.addEventListener('appinstalled', () => {
+                deferredPrompt = null;
+                installBtn.disabled = true;
+                installBtn.textContent = '✅ Installed';
+                console.log('✅ App installed with custom icon');
+            });
+
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    try {
+                        const result = await deferredPrompt.prompt();
+                        console.log('📲 Install prompt result:', result.outcome);
+                        if (result.outcome === 'accepted') {
+                            installBtn.disabled = true;
+                            installBtn.textContent = '✅ Installed';
+                        } else {
+                            installBtn.textContent = '📲 Install App';
+                        }
+                        deferredPrompt = null;
+                    } catch (err) {
+                        console.warn('Install prompt error:', err);
+                        alert('To install, open this page in Chrome or Edge and look for the install icon in the address bar.');
+                    }
+                } else {
+                    alert('To install this app:\n• Chrome/Edge: Look for the install icon (⊕) in the address bar\n• Safari: Tap the share button and select "Add to Home Screen"');
+                }
+            });
+
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                installBtn.disabled = true;
+                installBtn.textContent = '✅ Installed';
             }
 
-            pause() {
-                this.isPaused = true;
+            window.matchMedia('(display-mode: standalone)').addEventListener('change', (e) => {
+                if (e.matches) {
+                    installBtn.disabled = true;
+                    installBtn.textContent = '✅ Installed';
+                }
+            });
+
+            // 4. Offline detection
+            window.addEventListener('online', () => {
+                document.getElementById('offlineBanner').classList.remove('show');
+            });
+            window.addEventListener('offline', () => {
+                document.getElementById('offlineBanner').classList.add('show');
+            });
+            if (!navigator.onLine) {
+                document.getElementById('offlineBanner').classList.add('show');
             }
 
-            resume() {
-                this.isPaused = false;
+            // 5. Generate manifest and register SW
+            generateManifest();
+            registerServiceWorker();
+
+            // ──────────────────────────────────────
+            // ─── APP LOGIC ─────────────────────────
+            // ──────────────────────────────────────
+
+            // ─── DOM refs ───
+            const canvas = document.getElementById('graphCanvas');
+            const ctx = canvas.getContext('2d');
+
+            const $ = id => document.getElementById(id);
+            const roundNum = $('roundNum');
+            const currentMult = $('currentMult');
+            const liveDot = $('liveDot');
+            const gameStatusText = $('gameStatusText');
+            const botStatus = $('botStatus');
+            const historyLog = $('historyLog');
+
+            const hBalance = $('hBalance');
+            const hProfit = $('hProfit');
+            const hRounds = $('hRounds');
+            const hWinRate = $('hWinRate');
+
+            const dTotalBets = $('dTotalBets');
+            const dWins = $('dWins');
+            const dLosses = $('dLosses');
+            const dAvgMult = $('dAvgMult');
+            const dBestMult = $('dBestMult');
+            const dStreak = $('dStreak');
+            const dProfitFactor = $('dProfitFactor');
+            const dDrawdown = $('dDrawdown');
+
+            const strategySelect = $('strategySelect');
+            const baseBetInput = $('baseBet');
+            const targetMultInput = $('targetMult');
+            const stopLossInput = $('stopLoss');
+            const takeProfitInput = $('takeProfit');
+            const maxRoundsInput = $('maxRounds');
+            const startBtn = $('startBtn');
+            const stopBtn = $('stopBtn');
+            const resetBtn = $('resetBtn');
+            const clearHistoryBtn = $('clearHistoryBtn');
+            const dynamicTargetChk = $('dynamicTarget');
+            const trailingStopChk = $('trailingStop');
+            const speedSlider = $('speedSlider');
+            const speedVal = $('speedVal');
+            const predictBtn = $('predictBtn');
+            const predGrid = $('predGrid');
+
+            // ─── Canvas sizing ───
+            function resizeCanvas() {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                const w = canvas.clientWidth || rect.width - 36 || 600;
+                const h = canvas.clientHeight || 340;
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = w * dpr;
+                canvas.height = h * dpr;
+                canvas.style.width = w + 'px';
+                canvas.style.height = h + 'px';
+                ctx.scale(dpr, dpr);
+                return { w, h };
+            }
+            let CANVAS_W = 0,
+                CANVAS_H = 0;
+            resizeCanvas();
+            window.addEventListener('resize', () => { const s = resizeCanvas();
+                CANVAS_W = s.w;
+                CANVAS_H = s.h;
+                drawGraph(); });
+
+            // ─── State ───
+            const state = {
+                balance: 1000,
+                initialBalance: 1000,
+                totalBets: 0,
+                wins: 0,
+                losses: 0,
+                avgCrash: 0,
+                bestWin: 0,
+                streak: 0,
+                rounds: 0,
+                history: [],
+                currentRound: 0,
+                isRunning: false,
+                isBetting: false,
+                isCrashed: false,
+                currentMultiplier: 1.0,
+                crashPoint: 0,
+                betAmount: 0,
+                targetMultiplier: 2.0,
+                cashedOut: false,
+                roundProfit: 0,
+                roundResult: null,
+                graphData: [],
+                animFrame: null,
+                peakMultiplier: 1.0,
+                strategyState: {
+                    martingale: { multiplier: 1 },
+                    antimartingale: { multiplier: 1 },
+                    fibonacci: { sequence: [1, 1], index: 0 },
+                    dalembert: { unit: 0 },
+                    oscar: { targetProfit: 0, currentBet: 0, unit: 0 },
+                    labouchere: { sequence: [1, 2, 3] },
+                    paroli: { step: 0 },
+                    kelly: { bankroll: 0 },
+                    fixed: { bet: 0 }
+                },
+                currentStrategy: 'fixed',
+                baseBet: 10,
+                stopLoss: 100,
+                takeProfit: 300,
+                maxRounds: 50,
+                totalProfit: 0,
+                sessionProfit: 0,
+                stoppedDueTo: null,
+                roundInProgress: false,
+                pendingBet: 0,
+                speedFactor: 1.0,
+                grossWins: 0,
+                grossLosses: 0,
+                maxDrawdown: 0,
+                peakBalance: 1000,
+                crashHistory: [],
+            };
+
+            // ─── Speed control ───
+            speedSlider.addEventListener('input', () => {
+                const v = parseFloat(speedSlider.value);
+                speedVal.textContent = v.toFixed(1) + '×';
+                state.speedFactor = v;
+            });
+
+            // ─── Strategy implementations ───
+
+            function getBetAmount(strategy, baseBet, stateObj) {
+                const s = stateObj.strategyState[strategy];
+                switch (strategy) {
+                    case 'martingale': {
+                        const mult = s.multiplier || 1;
+                        return Math.round((baseBet * mult) * 100) / 100;
+                    }
+                    case 'antimartingale': {
+                        const mult = s.multiplier || 1;
+                        return Math.round((baseBet * mult) * 100) / 100;
+                    }
+                    case 'fibonacci': {
+                        const seq = s.sequence || [1, 1];
+                        const idx = s.index || 0;
+                        return Math.round((baseBet * seq[idx % seq.length]) * 100) / 100;
+                    }
+                    case 'dalembert': {
+                        const unit = s.unit || 0;
+                        return Math.round(Math.max(0.5, (baseBet + unit)) * 100) / 100;
+                    }
+                    case 'oscar': {
+                        let bet = s.currentBet || baseBet;
+                        if (bet <= 0) bet = baseBet;
+                        return Math.round(bet * 100) / 100;
+                    }
+                    case 'labouchere': {
+                        const seq = s.sequence || [1, 2, 3];
+                        if (seq.length === 0) return Math.round(baseBet * 100) / 100;
+                        const bet = seq[0] + seq[seq.length - 1];
+                        return Math.round((baseBet * bet) * 100) / 100;
+                    }
+                    case 'paroli': {
+                        const step = s.step || 0;
+                        const seq = [1, 3, 2, 6];
+                        const mult = seq[step % seq.length];
+                        return Math.round((baseBet * mult) * 100) / 100;
+                    }
+                    case 'kelly': {
+                        const bankroll = stateObj.balance;
+                        const p = 0.52;
+                        const b = 1.0;
+                        const f = (p * (b + 1) - 1) / b;
+                        const fraction = Math.max(0, Math.min(0.2, f * 0.5));
+                        return Math.round((bankroll * fraction) * 100) / 100;
+                    }
+                    case 'fixed':
+                    default:
+                        return Math.round(baseBet * 100) / 100;
+                }
             }
 
-            reset() {
-                this.rounds = [];
-                this.roundId = 0;
-                this.isRunning = false;
-                this.isPaused = false;
-                this.currentMultiplier = 1.0;
-                this.running = false;
+            function updateStrategyState(strategy, stateObj, won, betAmount, baseBet) {
+                const s = stateObj.strategyState[strategy];
+                switch (strategy) {
+                    case 'martingale':
+                        s.multiplier = won ? 1 : (s.multiplier || 1) * 2;
+                        break;
+                    case 'antimartingale':
+                        s.multiplier = won ? (s.multiplier || 1) * 2 : 1;
+                        break;
+                    case 'fibonacci': {
+                        const seq = s.sequence || [1, 1];
+                        let idx = s.index || 0;
+                        if (won) idx = Math.max(0, idx - 2);
+                        else idx = Math.min(seq.length - 1, idx + 1);
+                        if (idx < 0) idx = 0;
+                        s.index = idx;
+                        break;
+                    }
+                    case 'dalembert': {
+                        let unit = s.unit || 0;
+                        unit = won ? Math.max(0, unit - 1) : unit + 1;
+                        s.unit = unit;
+                        break;
+                    }
+                    case 'oscar': {
+                        let target = s.targetProfit || baseBet;
+                        let current = s.currentBet || baseBet;
+                        const unit = s.unit || baseBet;
+                        if (won) {
+                            current += unit;
+                            target -= betAmount * (stateObj.currentMultiplier - 1);
+                            if (target <= 0) { current = unit;
+                                target = unit * 3; }
+                        }
+                        s.currentBet = Math.max(0.5, current);
+                        s.targetProfit = target;
+                        s.unit = unit;
+                        break;
+                    }
+                    case 'labouchere': {
+                        let seq = s.sequence || [1, 2, 3];
+                        if (won) {
+                            if (seq.length >= 2) { seq.shift();
+                                seq.pop(); }
+                            if (seq.length === 0) seq = [1, 2, 3];
+                        } else {
+                            const bet = seq.length >= 2 ? seq[0] + seq[seq.length - 1] : seq[0] || 1;
+                            seq.push(bet);
+                        }
+                        s.sequence = seq;
+                        break;
+                    }
+                    case 'paroli': {
+                        let step = s.step || 0;
+                        step = won ? step + 1 : 0;
+                        if (step >= 4) step = 0;
+                        s.step = step;
+                        break;
+                    }
+                    case 'kelly':
+                        s.bankroll = stateObj.balance;
+                        break;
+                    case 'fixed':
+                    default:
+                        break;
+                }
             }
 
-            getRounds() {
-                return this.rounds;
+            // ─── Crash generation ───
+            function generateCrashPoint() {
+                let r;
+                do { r = Math.random(); } while (r < 0.002);
+                const crash = Math.max(1.0, 0.92 / (1 - r));
+                return Math.min(100, Math.round(crash * 100) / 100);
             }
 
-            async simulateRound(onUpdate, onComplete) {
-                if (this.isPaused) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
+            // ─── Graph rendering ───
+            function drawGraph() {
+                const w = canvas.width / (window.devicePixelRatio || 1);
+                const h = canvas.height / (window.devicePixelRatio || 1);
+                ctx.clearRect(0, 0, w, h);
+
+                const data = state.graphData || [];
+                if (data.length < 2) {
+                    ctx.fillStyle = '#334155';
+                    ctx.font = '14px "Inter", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Awaiting round start…', w / 2, h / 2);
                     return;
                 }
 
-                const seed = `${this.seed}_${this.roundId}_${Date.now()}`;
-                const multiplier = this.generateCrashPoint(seed);
-                const round = {
-                    id: this.roundId++,
-                    multiplier,
-                    timestamp: Date.now(),
-                    isSimulation: true,
-                    seed: seed,
-                };
+                let maxMult = 1.5;
+                for (const d of data) { if (d.mult > maxMult) maxMult = d.mult; }
+                maxMult = Math.max(maxMult, 1.5);
+                const pad = { top: 16, bottom: 24, left: 8, right: 12 };
+                const graphW = w - pad.left - pad.right;
+                const graphH = h - pad.top - pad.bottom;
 
-                this.rounds.push(round);
-                this.currentMultiplier = multiplier;
+                const crashIdx = data.findIndex(d => d.crashed);
+                const crashMult = crashIdx !== -1 ? data[crashIdx].mult : null;
 
-                // Animate the multiplier growth
-                let current = 1.0;
-                while (current < multiplier && this.running) {
-                    if (this.isPaused) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        continue;
-                    }
-                    current += 0.01 * this.speed;
-                    if (current > multiplier) current = multiplier;
-                    onUpdate(current);
-                    await new Promise(resolve => setTimeout(resolve, 10));
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 0.5;
+                for (let i = 1; i <= 4; i++) {
+                    const y = pad.top + graphH - (i / 4) * graphH;
+                    ctx.beginPath();
+                    ctx.moveTo(pad.left, y);
+                    ctx.lineTo(w - pad.right, y);
+                    ctx.stroke();
+                    ctx.fillStyle = '#475569';
+                    ctx.font = '9px "JetBrains Mono", monospace';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(((i / 4) * maxMult).toFixed(1) + '×', pad.left - 4, y + 3);
                 }
 
-                onComplete(round);
-            }
-        }
+                const len = data.length;
+                const step = graphW / Math.max(1, len - 1);
 
-        // ============================================================
-        // STATISTICS ENGINE
-        // ============================================================
-        function calculateStatistics(rounds) {
-            if (rounds.length === 0) {
-                return {
-                    mean: 0,
-                    median: 0,
-                    min: 0,
-                    max: 0,
-                    stdDev: 0,
-                    aboveMultipliers: [],
-                    totalRounds: 0,
-                    frequencyDistribution: []
-                };
-            }
+                const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + graphH);
+                grad.addColorStop(0, 'rgba(34, 211, 238, 0.12)');
+                grad.addColorStop(1, 'rgba(34, 211, 238, 0.01)');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.moveTo(pad.left, pad.top + graphH);
+                for (let i = 0; i < len; i++) {
+                    const x = pad.left + i * step;
+                    const y = pad.top + graphH - (data[i].mult / maxMult) * graphH;
+                    if (i === 0) ctx.lineTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.lineTo(pad.left + (len - 1) * step, pad.top + graphH);
+                ctx.closePath();
+                ctx.fill();
 
-            const multipliers = rounds.map(r => r.multiplier).sort((a, b) => a - b);
-            const total = multipliers.length;
-            const sum = multipliers.reduce((a, b) => a + b, 0);
-            const mean = sum / total;
+                ctx.beginPath();
+                let started = false;
+                for (let i = 0; i < len; i++) {
+                    const x = pad.left + i * step;
+                    const y = pad.top + graphH - (data[i].mult / maxMult) * graphH;
+                    if (!started) { ctx.moveTo(x, y);
+                        started = true; } else ctx.lineTo(x, y);
+                }
+                ctx.strokeStyle = '#22d3ee';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = 'rgba(34, 211, 238, 0.3)';
+                ctx.shadowBlur = 12;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
 
-            const squaredDiffs = multipliers.map(x => Math.pow(x - mean, 2));
-            const variance = squaredDiffs.reduce((a, b) => a + b, 0) / total;
-            const stdDev = Math.sqrt(variance);
+                if (crashIdx !== -1) {
+                    const cx = pad.left + crashIdx * step;
+                    const cy = pad.top + graphH - (crashMult / maxMult) * graphH;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+                    ctx.fillStyle = '#f87171';
+                    ctx.fill();
+                    ctx.shadowColor = 'rgba(248, 113, 113, 0.5)';
+                    ctx.shadowBlur = 18;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(248, 113, 113, 0.2)';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = '#f87171';
+                    ctx.font = 'bold 11px "JetBrains Mono", monospace';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('💥 ' + crashMult.toFixed(2) + '×', cx + 16, cy + 4);
+                }
 
-            const median = total % 2 === 0 ?
-                (multipliers[total / 2 - 1] + multipliers[total / 2]) / 2 :
-                multipliers[Math.floor(total / 2)];
+                const target = state.targetMultiplier || 2.0;
+                if (target > 1 && target < maxMult) {
+                    const ty = pad.top + graphH - (target / maxMult) * graphH;
+                    ctx.strokeStyle = 'rgba(251, 191, 36, 0.2)';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([4, 6]);
+                    ctx.beginPath();
+                    ctx.moveTo(pad.left, ty);
+                    ctx.lineTo(w - pad.right, ty);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = 'rgba(251, 191, 36, 0.6)';
+                    ctx.font = '10px "Inter", sans-serif';
+                    ctx.textAlign = 'right';
+                    ctx.fillText('🎯 ' + target.toFixed(2) + '×', w - pad.right - 4, ty - 6);
+                }
 
-            const ranges = [
-                { label: '1.00–1.20', min: 1.0, max: 1.2 },
-                { label: '1.20–1.50', min: 1.2, max: 1.5 },
-                { label: '1.50–2.00', min: 1.5, max: 2.0 },
-                { label: '2.00–3.00', min: 2.0, max: 3.0 },
-                { label: '3.00–5.00', min: 3.0, max: 5.0 },
-                { label: '5.00–10.00', min: 5.0, max: 10.0 },
-                { label: '10.00–20.00', min: 10.0, max: 20.0 },
-                { label: '20.00–50.00', min: 20.0, max: 50.0 },
-                { label: '50.00+', min: 50.0, max: Infinity },
-            ];
-
-            const frequencyDistribution = ranges.map(range => ({
-                range: range.label,
-                count: multipliers.filter(x => x >= range.min && x < range.max).length,
-            }));
-
-            const aboveMultipliers = [1.2, 1.5, 2, 3, 5, 10, 20, 50, 100].map(mult => {
-                const count = multipliers.filter(x => x >= mult).length;
-                return {
-                    multiplier: mult,
-                    count,
-                    percentage: (count / total) * 100,
-                };
-            });
-
-            return {
-                mean,
-                median,
-                min: multipliers[0] || 0,
-                max: multipliers[total - 1] || 0,
-                stdDev,
-                aboveMultipliers,
-                totalRounds: total,
-                frequencyDistribution,
-            };
-        }
-
-        function calculateProbabilities(rounds, multipliers) {
-            const total = rounds.length;
-            if (total === 0) return [];
-            return multipliers.map(mult => {
-                const count = rounds.filter(r => r.multiplier >= mult).length;
-                return {
-                    multiplier: mult,
-                    probability: count / total,
-                    sampleSize: total,
-                };
-            });
-        }
-
-        // ============================================================
-        // SIMPLE HASH FUNCTION (for fairness demo)
-        // ============================================================
-        function simpleHash(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                const char = str.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash;
-            }
-            return Math.abs(hash).toString(16).padStart(8, '0');
-        }
-
-        // ============================================================
-        // APPLICATION STATE
-        // ============================================================
-        const state = {
-            simulator: new CrashSimulator(),
-            rounds: [],
-            currentPage: 'dashboard',
-            charts: {},
-            isSimulating: false,
-        };
-
-        // ============================================================
-        // DOM REFERENCES
-        // ============================================================
-        const $ = (id) => document.getElementById(id);
-        const $$ = (sel) => document.querySelectorAll(sel);
-
-        // ============================================================
-        // NAVIGATION
-        // ============================================================
-        function navigateTo(page) {
-            // Hide all pages
-            $$('.page-content').forEach(el => el.classList.add('hidden'));
-
-            // Show target page
-            const target = $(`page-${page}`);
-            if (target) {
-                target.classList.remove('hidden');
-                target.classList.add('fade-in');
+                if (data.length > 0 && !state.isCrashed) {
+                    const last = data[data.length - 1];
+                    const lx = pad.left + (data.length - 1) * step;
+                    const ly = pad.top + graphH - (last.mult / maxMult) * graphH;
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.font = 'bold 14px "JetBrains Mono", monospace';
+                    ctx.textAlign = 'left';
+                    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+                    ctx.shadowBlur = 10;
+                    ctx.fillText(last.mult.toFixed(2) + '×', lx + 10, ly - 6);
+                    ctx.shadowBlur = 0;
+                }
             }
 
-            // Update nav links
-            $$('.nav-link').forEach(el => {
-                el.classList.toggle('active', el.dataset.page === page);
-            });
+            // ─── UI updates ───
+            function updateUI() {
+                const b = state.balance;
+                const profit = b - state.initialBalance;
+                hBalance.textContent = '$' + b.toFixed(2);
+                hProfit.textContent = (profit >= 0 ? '+' : '') + profit.toFixed(2);
+                hProfit.style.color = profit >= 0 ? '#34d399' : '#f87171';
+                hRounds.textContent = state.rounds;
 
-            state.currentPage = page;
+                const wr = state.totalBets > 0 ? (state.wins / state.totalBets * 100) : 0;
+                hWinRate.textContent = wr.toFixed(1) + '%';
 
-            // Close mobile nav
-            const mobileNav = $('mobileNav');
-            if (mobileNav) mobileNav.classList.add('hidden');
+                dTotalBets.textContent = state.totalBets;
+                dWins.textContent = state.wins;
+                dLosses.textContent = state.losses;
+                dAvgMult.textContent = state.avgCrash.toFixed(2) + '×';
+                dBestMult.textContent = state.bestWin.toFixed(2) + '×';
+                dStreak.textContent = state.streak;
+                dStreak.style.color = state.streak >= 0 ? '#34d399' : '#f87171';
 
-            // Initialize charts if needed
-            setTimeout(() => {
-                if (page === 'dashboard') initDashboardChart();
-                if (page === 'simulation') initSimulationChart();
-                if (page === 'probability') initProbabilityChart();
-                if (page === 'analyzer') initAnalyzerChart();
-            }, 100);
-        }
+                const pf = state.grossLosses > 0 ? state.grossWins / state.grossLosses : (state.grossWins > 0 ? Infinity :
+                    0);
+                dProfitFactor.textContent = pf === Infinity ? '∞' : pf.toFixed(2);
 
-        // ============================================================
-        // DASHBOARD
-        // ============================================================
-        let dashboardChartInstance = null;
+                const dd = state.maxDrawdown;
+                dDrawdown.textContent = dd.toFixed(1) + '%';
+                dDrawdown.style.color = dd > 5 ? '#f87171' : '#fbbf24';
 
-        function initDashboardChart() {
-            const canvas = $('dashboardChart');
-            if (!canvas) return;
-
-            if (dashboardChartInstance) {
-                dashboardChartInstance.destroy();
-            }
-
-            const ctx = canvas.getContext('2d');
-            const rounds = state.rounds.slice(-50);
-
-            dashboardChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: rounds.map((_, i) => i + 1),
-                    datasets: [{
-                        label: 'Multiplier',
-                        data: rounds.map(r => r.multiplier),
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 3,
-                        pointBackgroundColor: '#3b82f6',
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: { color: '#94a3b8' }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8' }
-                        },
-                        y: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8' }
-                        }
+                if (state.isRunning) {
+                    if (state.isBetting) {
+                        botStatus.textContent = '● Betting…';
+                        botStatus.className = 'status-value betting';
+                    } else if (state.roundInProgress) {
+                        botStatus.textContent = '● In flight…';
+                        botStatus.className = 'status-value betting';
+                    } else {
+                        botStatus.textContent = '● Running (waiting)';
+                        botStatus.className = 'status-value idle';
+                    }
+                } else {
+                    if (state.stoppedDueTo) {
+                        const msgs = {
+                            stopLoss: '⛔ Stop Loss',
+                            takeProfit: '✅ Take Profit',
+                            maxRounds: '⏹ Max Rounds',
+                        };
+                        botStatus.textContent = '● ' + (msgs[state.stoppedDueTo] || 'Stopped');
+                        botStatus.className = 'status-value';
+                    } else {
+                        botStatus.textContent = '● Idle';
+                        botStatus.className = 'status-value idle';
                     }
                 }
-            });
-        }
 
-        function updateDashboard() {
-            const stats = calculateStatistics(state.rounds);
-            $('statRounds').textContent = stats.totalRounds;
-            $('statMean').textContent = stats.mean.toFixed(2);
-            $('statMax').textContent = stats.max.toFixed(2);
-            $('statStd').textContent = stats.stdDev.toFixed(2);
+                liveDot.className = (state.isRunning && state.roundInProgress) ? 'dot active' : 'dot';
+                gameStatusText.textContent = (state.isRunning && state.roundInProgress) ? 'Live' : (state.isRunning ?
+                    'Waiting…' : 'Idle');
 
-            // Update probabilities
-            const probs = calculateProbabilities(state.rounds, [2, 3, 5, 10]);
-            const probMap = {};
-            probs.forEach(p => {
-                probMap[`${p.multiplier}x`] = (p.probability * 100).toFixed(1);
-            });
+                currentMult.textContent = state.currentMultiplier.toFixed(2) + '×';
+                currentMult.className = 'multiplier' + (state.isCrashed ? ' crashed' : '');
+                roundNum.textContent = state.currentRound;
 
-            const probBars = [
-                { id: 'prob2x', key: '2x' },
-                { id: 'prob3x', key: '3x' },
-                { id: 'prob5x', key: '5x' },
-                { id: 'prob10x', key: '10x' },
-            ];
+                startBtn.disabled = state.isRunning;
+                stopBtn.disabled = !state.isRunning;
+            }
 
-            probBars.forEach(({ id, key }) => {
-                const pct = probMap[key] || '0.0';
-                const el = $(id);
-                if (el) {
-                    el.textContent = pct + '%';
-                    const bar = el.closest('.flex')?.querySelector('.h-full');
-                    if (bar) {
-                        bar.style.width = Math.min(parseFloat(pct), 100) + '%';
-                    }
+            // ─── History ───
+            function addHistory(entry) {
+                state.history.unshift(entry);
+                if (state.history.length > 150) state.history.pop();
+                renderHistory();
+            }
+
+            function renderHistory() {
+                if (state.history.length === 0) {
+                    historyLog.innerHTML = '<div class="empty">No rounds logged yet</div>';
+                    return;
                 }
-            });
-
-            // Update chart
-            if (dashboardChartInstance) {
-                const rounds = state.rounds.slice(-50);
-                dashboardChartInstance.data.labels = rounds.map((_, i) => i + 1);
-                dashboardChartInstance.data.datasets[0].data = rounds.map(r => r.multiplier);
-                dashboardChartInstance.update();
-            }
-        }
-
-        // ============================================================
-        // SIMULATION
-        // ============================================================
-        let simulationChartInstance = null;
-
-        function initSimulationChart() {
-            const canvas = $('simulationChart');
-            if (!canvas) return;
-
-            if (simulationChartInstance) {
-                simulationChartInstance.destroy();
-            }
-
-            const ctx = canvas.getContext('2d');
-            const rounds = state.rounds.slice(-50);
-
-            simulationChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: rounds.map((_, i) => i + 1),
-                    datasets: [{
-                        label: 'Multiplier',
-                        data: rounds.map(r => r.multiplier),
-                        borderColor: '#22d3ee',
-                        backgroundColor: 'rgba(34, 211, 238, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 2,
-                        pointBackgroundColor: '#22d3ee',
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: { color: '#94a3b8' }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8' }
-                        },
-                        y: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8' }
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateSimulationUI() {
-            $('simRoundCount').textContent = state.rounds.length;
-
-            // Update results display
-            const container = $('simResults');
-            const recent = state.rounds.slice(-20).reverse();
-            if (recent.length === 0) {
-                container.innerHTML = '<div class="text-gray-400 text-sm">No results yet. Start a simulation!</div>';
-            } else {
-                container.innerHTML = recent.map(r => {
-                    const cls = r.multiplier >= 5 ? 'bg-green-500/20 text-green-400' :
-                        r.multiplier >= 2 ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-white/5 text-gray-400';
-                    return `<div class="px-3 py-1 rounded-lg text-sm font-mono ${cls}">${r.multiplier.toFixed(2)}x</div>`;
-                }).join('');
-            }
-
-            // Update chart
-            if (simulationChartInstance) {
-                const rounds = state.rounds.slice(-50);
-                simulationChartInstance.data.labels = rounds.map((_, i) => i + 1);
-                simulationChartInstance.data.datasets[0].data = rounds.map(r => r.multiplier);
-                simulationChartInstance.update();
-            }
-
-            updateDashboard();
-        }
-
-        // Simulation controls
-        let simRunning = false;
-        let simPaused = false;
-
-        $('simStartBtn').addEventListener('click', async function() {
-            if (simRunning) return;
-
-            const speed = parseFloat($('simSpeed').value);
-            state.simulator.setSpeed(speed);
-
-            simRunning = true;
-            simPaused = false;
-            this.disabled = true;
-            this.innerHTML =
-                '<div class="spinner"></div> Running...';
-
-            $('simPauseBtn').disabled = false;
-            $('simPauseBtn').innerHTML = `
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Pause
-                    `;
-
-            state.simulator.running = true;
-
-            const roundsToGenerate = 50;
-            for (let i = 0; i < roundsToGenerate && simRunning; i++) {
-                if (simPaused) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    i--;
-                    continue;
-                }
-
-                await state.simulator.simulateRound(
-                    (mult) => {
-                        $('currentMultiplier').textContent = mult.toFixed(2) + 'x';
-                    },
-                    (round) => {
-                        state.rounds.push(round);
-                        updateSimulationUI();
-                        $('currentMultiplier').textContent = round.multiplier.toFixed(2) + 'x';
-                    }
-                );
-
-                // Check if paused
-                if (simPaused) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    i--;
-                }
-            }
-
-            simRunning = false;
-            state.simulator.running = false;
-            this.disabled = false;
-            this.innerHTML = `
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Start Simulation
-                    `;
-            $('simPauseBtn').disabled = true;
-        });
-
-        $('simPauseBtn').addEventListener('click', function() {
-            simPaused = !simPaused;
-            if (simPaused) {
-                state.simulator.pause();
-                this.innerHTML = `
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Resume
-                        `;
-            } else {
-                state.simulator.resume();
-                this.innerHTML = `
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Pause
-                        `;
-            }
-        });
-
-        $('simResetBtn').addEventListener('click', function() {
-            simRunning = false;
-            simPaused = false;
-            state.simulator.reset();
-            state.rounds = [];
-            $('currentMultiplier').textContent = '1.00x';
-            updateSimulationUI();
-            $('simStartBtn').disabled = false;
-            $('simStartBtn').innerHTML = `
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Start Simulation
-                    `;
-            $('simPauseBtn').disabled = true;
-            $('simPauseBtn').innerHTML = `
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Pause
-                    `;
-        });
-
-        $('simSpeed').addEventListener('input', function() {
-            $('simSpeedLabel').textContent = this.value + 'x';
-            state.simulator.setSpeed(parseFloat(this.value));
-        });
-
-        $$('.simBatchBtn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const count = parseInt(this.dataset.count);
-                const rounds = state.simulator.generateRounds(count);
-                state.rounds = state.rounds.concat(rounds);
-                if (rounds.length > 0) {
-                    $('currentMultiplier').textContent = rounds[rounds.length - 1].multiplier.toFixed(2) + 'x';
-                }
-                updateSimulationUI();
-            });
-        });
-
-        // ============================================================
-        // PROBABILITY LAB
-        // ============================================================
-        let probabilityChartInstance = null;
-
-        function initProbabilityChart() {
-            const canvas = $('probabilityChart');
-            if (!canvas) return;
-
-            if (probabilityChartInstance) {
-                probabilityChartInstance.destroy();
-            }
-
-            const ctx = canvas.getContext('2d');
-            probabilityChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Probability',
-                        data: [],
-                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                        borderColor: '#3b82f6',
-                        borderWidth: 1,
-                        borderRadius: 4,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: { color: '#94a3b8' }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return (context.parsed.y * 100).toFixed(1) + '%';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8' }
-                        },
-                        y: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: {
-                                color: '#94a3b8',
-                                callback: function(value) {
-                                    return (value * 100).toFixed(0) + '%';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        $('probCalcBtn').addEventListener('click', function() {
-            const sampleSize = parseInt($('probSampleSize').value);
-            const simulator = new CrashSimulator(Date.now().toString());
-            const rounds = simulator.generateRounds(sampleSize);
-
-            const multipliers = [1.2, 1.5, 2, 3, 5, 10, 20, 50, 100];
-            const probs = calculateProbabilities(rounds, multipliers);
-
-            // Show results
-            $('probResults').classList.remove('hidden');
-
-            // Update chart
-            if (probabilityChartInstance) {
-                probabilityChartInstance.data.labels = probs.map(p => p.multiplier + 'x');
-                probabilityChartInstance.data.datasets[0].data = probs.map(p => p.probability);
-                probabilityChartInstance.update();
-            }
-
-            // Update detailed results
-            const container = $('probDetailedResults');
-            container.innerHTML = probs.map(p => `
-                        <div class="p-4 bg-white/5 rounded-xl text-center">
-                            <div class="text-2xl font-bold text-white">${(p.probability * 100).toFixed(1)}%</div>
-                            <div class="text-sm text-gray-400 mt-1">≥ ${p.multiplier}x</div>
+                let html = '';
+                for (const h of state.history) {
+                    const resultClass = h.result === 'win' ? 'win' : 'loss';
+                    const sign = h.profit >= 0 ? '+' : '';
+                    html += `
+                        <div class="log-item">
+                            <span>#${h.round}  $${h.bet.toFixed(2)} @ ${h.target.toFixed(2)}×</span>
+                            <span>
+                                <span class="log-result ${resultClass}">${h.result.toUpperCase()}</span>
+                                <span class="log-profit" style="color:${h.profit >= 0 ? '#34d399' : '#f87171'};">${sign}$${h.profit.toFixed(2)}</span>
+                                <span class="log-mult">💥 ${h.crash.toFixed(2)}×</span>
+                            </span>
                         </div>
-                    `).join('');
-        });
-
-        // ============================================================
-        // HISTORICAL ANALYZER
-        // ============================================================
-        let analyzerChartInstance = null;
-
-        function initAnalyzerChart() {
-            const canvas = $('analyzerChart');
-            if (!canvas) return;
-
-            if (analyzerChartInstance) {
-                analyzerChartInstance.destroy();
+                    `;
+                }
+                historyLog.innerHTML = html;
             }
 
-            const ctx = canvas.getContext('2d');
-            analyzerChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Frequency',
-                        data: [],
-                        backgroundColor: 'rgba(34, 211, 238, 0.7)',
-                        borderColor: '#22d3ee',
-                        borderWidth: 1,
-                        borderRadius: 4,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: { color: '#94a3b8' }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8' }
-                        },
-                        y: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8' }
-                        }
-                    }
+            // ─── Core game loop ───
+            function startRound() {
+                if (!state.isRunning) return;
+                if (state.roundInProgress) return;
+                if (state.totalBets >= state.maxRounds && state.maxRounds > 0) {
+                    stopBot('maxRounds');
+                    return;
                 }
-            });
-        }
 
-        // CSV Upload
-        $('csvUpload').addEventListener('change', function(e) {
-            const file = e.target.files?.[0];
-            if (!file) return;
+                const profit = state.balance - state.initialBalance;
+                if (state.stopLoss > 0 && profit <= -state.stopLoss) { stopBot('stopLoss'); return; }
+                if (state.takeProfit > 0 && profit >= state.takeProfit) { stopBot('takeProfit'); return; }
 
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                try {
-                    const text = event.target.result;
-                    const lines = text.split('\n');
-                    if (lines.length < 2) {
-                        throw new Error('CSV file must contain at least 2 lines (header + data)');
-                    }
-
-                    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-                    const multiplierIndex = headers.indexOf('multiplier');
-
-                    if (multiplierIndex === -1) {
-                        throw new Error('CSV must contain a "multiplier" column');
-                    }
-
-                    const parsedRounds = [];
-                    for (let i = 1; i < lines.length; i++) {
-                        const line = lines[i].trim();
-                        if (!line) continue;
-                        const values = line.split(',').map(v => v.trim());
-                        const multiplier = parseFloat(values[multiplierIndex]);
-                        if (isNaN(multiplier)) {
-                            throw new Error(`Invalid multiplier at line ${i + 1}: "${values[multiplierIndex]}"`);
-                        }
-                        parsedRounds.push({
-                            id: i,
-                            multiplier: multiplier,
-                            timestamp: Date.now() - (i * 60000),
-                            isSimulation: false,
-                        });
-                    }
-
-                    if (parsedRounds.length === 0) {
-                        throw new Error('No valid data rows found');
-                    }
-
-                    state.rounds = parsedRounds;
-                    const stats = calculateStatistics(parsedRounds);
-
-                    // Show results
-                    $('analyzerResults').classList.remove('hidden');
-                    $('analyzerStatus').textContent = `${parsedRounds.length} rounds loaded`;
-                    $('exportCsvBtn').disabled = false;
-
-                    // Update stats
-                    $('aMean').textContent = stats.mean.toFixed(2) + 'x';
-                    $('aMedian').textContent = stats.median.toFixed(2) + 'x';
-                    $('aMinMax').textContent = `${stats.min.toFixed(2)} / ${stats.max.toFixed(2)}x`;
-                    $('aStd').textContent = stats.stdDev.toFixed(2);
-
-                    // Update chart
-                    if (analyzerChartInstance) {
-                        analyzerChartInstance.data.labels = stats.frequencyDistribution.map(d => d.range);
-                        analyzerChartInstance.data.datasets[0].data = stats.frequencyDistribution.map(d => d.count);
-                        analyzerChartInstance.update();
-                    }
-
-                    // Hide error
-                    $('csvError').classList.add('hidden');
-
-                    // Update dashboard
-                    updateDashboard();
-
-                } catch (err) {
-                    $('csvErrorMsg').textContent = err.message;
-                    $('csvError').classList.remove('hidden');
+                let target = parseFloat(targetMultInput.value) || 2.0;
+                if (dynamicTargetChk.checked && state.crashHistory.length > 5) {
+                    const avg = state.crashHistory.slice(-20).reduce((a, b) => a + b, 0) / Math.min(20, state.crashHistory
+                    .length);
+                    target = Math.max(1.1, avg * 0.65);
+                    target = Math.round(target * 100) / 100;
                 }
-            };
-            reader.readAsText(file);
-        });
+                state.targetMultiplier = target;
 
-        // Export CSV
-        $('exportCsvBtn').addEventListener('click', function() {
-            if (state.rounds.length === 0) return;
+                const strategy = state.currentStrategy;
+                const baseBet = state.baseBet;
+                let bet = getBetAmount(strategy, baseBet, state);
+                if (bet > state.balance) {
+                    if (state.balance < 0.5) { stopBot('stopLoss'); return; }
+                    bet = Math.max(0.5, Math.floor(state.balance * 0.9 * 100) / 100);
+                }
+                if (bet < 0.1) { stopBot('stopLoss'); return; }
 
-            const csv = [
-                '# Educational Simulation Data — Not Real Betting Signals',
-                'round,multiplier,isSimulation',
-                ...state.rounds.map(r => `${r.id},${r.multiplier.toFixed(4)},${r.isSimulation}`)
-            ].join('\n');
+                state.betAmount = bet;
+                state.pendingBet = bet;
+                state.cashedOut = false;
+                state.roundResult = null;
+                state.roundProfit = 0;
+                state.isCrashed = false;
+                state.currentMultiplier = 1.0;
+                state.peakMultiplier = 1.0;
+                state.currentRound++;
+                state.roundInProgress = true;
+                state.isBetting = true;
+                state.graphData = [{ t: 0, mult: 1.0, crashed: false }];
+                state.startTime = performance.now();
 
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `crashlab_data_${Date.now()}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-        });
+                state.crashPoint = generateCrashPoint();
+                if (state.targetMultiplier > state.crashPoint) {
+                    state.targetMultiplier = Math.max(1.05, state.crashPoint * 0.92);
+                }
 
-        // ============================================================
-        // FAIRNESS LAB
-        // ============================================================
-        $('fairnessCalcBtn').addEventListener('click', function() {
-            const serverSeed = $('serverSeed').value || 'DEMO_SERVER_SEED_123';
-            const clientSeed = $('clientSeed').value || 'LEARNING_USER_456';
-            const nonce = parseInt($('nonce').value) || 0;
+                updateUI();
+                drawGraph();
 
-            const combined = `${serverSeed}:${clientSeed}:${nonce}`;
-            const hash = simpleHash(combined);
-            const hashNum = parseInt(hash.slice(0, 8), 16);
-            const random = (hashNum % 100000) / 100000;
-            const multiplier = 1 / (1 - random * 0.99);
+                if (state.animFrame) cancelAnimationFrame(state.animFrame);
+                let lastTime = performance.now();
 
-            $('fairnessHash').textContent = hash;
-            $('fairnessMultiplier').textContent = Math.round(multiplier * 100) / 100 + 'x';
-            $('fairnessResults').classList.remove('hidden');
-        });
+                function tick(time) {
+                    if (!state.roundInProgress) { state.animFrame = null; return; }
+                    const dt = (time - lastTime) / 1000 * state.speedFactor;
+                    lastTime = time;
 
-        // ============================================================
-        // NAVIGATION EVENTS
-        // ============================================================
-        $$('.nav-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                navigateTo(this.dataset.page);
-            });
-        });
+                    if (!state.isCrashed) {
+                        state.currentMultiplier += 0.07 * dt * (1 + state.currentMultiplier * 0.04);
+                        state.currentMultiplier = Math.round(state.currentMultiplier * 100) / 100;
 
-        $('mobileMenuBtn').addEventListener('click', function() {
-            const nav = $('mobileNav');
-            nav.classList.toggle('hidden');
-        });
+                        if (state.currentMultiplier > state.peakMultiplier) {
+                            state.peakMultiplier = state.currentMultiplier;
+                        }
 
-        // ============================================================
-        // INITIALIZATION
-        // ============================================================
-        // Generate some initial demo data
-        const initialRounds = state.simulator.generateRounds(100);
-        state.rounds = initialRounds;
-        updateDashboard();
+                        if (trailingStopChk.checked && state.peakMultiplier > 1.2) {
+                            const drop = (state.peakMultiplier - state.currentMultiplier) / state.peakMultiplier;
+                            if (drop > 0.04) {
+                                state.isCrashed = false;
+                                state.isBetting = false;
+                                state.cashedOut = true;
+                                state.roundResult = 'win';
+                                const mult = state.currentMultiplier;
+                                state.roundProfit = state.betAmount * mult - state.betAmount;
+                                state.balance += state.roundProfit;
+                                state.wins++;
+                                state.totalBets++;
+                                state.streak = state.streak < 0 ? 1 : state.streak + 1;
+                                state.totalProfit += state.roundProfit;
+                                state.sessionProfit += state.roundProfit;
+                                state.grossWins += state.roundProfit;
+                                if (mult > state.bestWin) state.bestWin = mult;
+                                state.avgCrash = (state.avgCrash * (state.totalBets - 1) + state.crashPoint) / state
+                                    .totalBets;
+                                updateStrategyState(state.currentStrategy, state, true, state.betAmount, state
+                                    .baseBet);
+                                state.graphData.push({ t: mult, mult: mult, crashed: false });
+                                addHistory({
+                                    round: state.currentRound,
+                                    bet: state.betAmount,
+                                    target: state.targetMultiplier,
+                                    result: 'win',
+                                    profit: state.roundProfit,
+                                    crash: state.crashPoint,
+                                });
+                                state.crashHistory.push(state.crashPoint);
+                                updateUI();
+                                drawGraph();
+                                state.roundInProgress = false;
+                                state.isBetting = false;
+                                if (state.isRunning) setTimeout(() => { if (state.isRunning) startRound(); }, 300);
+                                return;
+                            }
+                        }
 
-        // Initialize charts after render
-        setTimeout(() => {
-            initDashboardChart();
-            initSimulationChart();
-            initProbabilityChart();
-            initAnalyzerChart();
-        }, 100);
+                        if (state.currentMultiplier >= state.crashPoint) {
+                            state.currentMultiplier = state.crashPoint;
+                            state.isCrashed = true;
+                            state.isBetting = false;
+                            state.roundResult = 'loss';
+                            state.roundProfit = -state.betAmount;
+                            state.balance += state.roundProfit;
+                            state.losses++;
+                            state.totalBets++;
+                            state.streak = state.streak > 0 ? -1 : state.streak - 1;
+                            state.totalProfit += state.roundProfit;
+                            state.sessionProfit += state.roundProfit;
+                            state.grossLosses += Math.abs(state.roundProfit);
+                            updateStrategyState(state.currentStrategy, state, false, state.betAmount, state.baseBet);
+                            state.graphData.push({ t: state.currentMultiplier, mult: state.currentMultiplier,
+                                crashed: true });
+                            state.crashHistory.push(state.crashPoint);
+                            addHistory({
+                                round: state.currentRound,
+                                bet: state.betAmount,
+                                target: state.targetMultiplier,
+                                result: 'loss',
+                                profit: state.roundProfit,
+                                crash: state.crashPoint,
+                            });
+                            updateUI();
+                            drawGraph();
+                            state.roundInProgress = false;
+                            state.isBetting = false;
+                            if (state.isRunning) setTimeout(() => { if (state.isRunning) startRound(); }, 350);
+                            return;
+                        }
 
-        // Handle window resize for charts
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                Object.values(state.charts).forEach(chart => {
-                    if (chart && chart.resize) chart.resize();
+                        if (state.currentMultiplier >= state.targetMultiplier && !state.isCrashed) {
+                            state.isBetting = false;
+                            state.cashedOut = true;
+                            state.roundResult = 'win';
+                            const mult = state.currentMultiplier;
+                            state.roundProfit = state.betAmount * mult - state.betAmount;
+                            state.balance += state.roundProfit;
+                            state.wins++;
+                            state.totalBets++;
+                            state.streak = state.streak < 0 ? 1 : state.streak + 1;
+                            state.totalProfit += state.roundProfit;
+                            state.sessionProfit += state.roundProfit;
+                            state.grossWins += state.roundProfit;
+                            if (mult > state.bestWin) state.bestWin = mult;
+                            state.avgCrash = (state.avgCrash * (state.totalBets - 1) + state.crashPoint) / state
+                                .totalBets;
+                            updateStrategyState(state.currentStrategy, state, true, state.betAmount, state.baseBet);
+                            state.graphData.push({ t: mult, mult: mult, crashed: false });
+                            state.crashHistory.push(state.crashPoint);
+                            addHistory({
+                                round: state.currentRound,
+                                bet: state.betAmount,
+                                target: state.targetMultiplier,
+                                result: 'win',
+                                profit: state.roundProfit,
+                                crash: state.crashPoint,
+                            });
+                            updateUI();
+                            drawGraph();
+                            state.roundInProgress = false;
+                            state.isBetting = false;
+                            if (state.isRunning) setTimeout(() => { if (state.isRunning) startRound(); }, 300);
+                            return;
+                        }
+
+                        state.graphData.push({ t: state.currentMultiplier, mult: state.currentMultiplier,
+                            crashed: false });
+                        if (state.graphData.length > 800) state.graphData = state.graphData.slice(-600);
+                        updateUI();
+                        drawGraph();
+                    }
+
+                    state.animFrame = requestAnimationFrame(tick);
+                }
+
+                state.animFrame = requestAnimationFrame(tick);
+            }
+
+            // ─── Bot control ───
+            function startBot() {
+                if (state.isRunning) return;
+                state.sessionProfit = 0;
+                state.stoppedDueTo = null;
+                state.currentRound = 0;
+                state.currentMultiplier = 1.0;
+                state.isCrashed = false;
+                state.roundInProgress = false;
+                state.isBetting = false;
+                state.graphData = [];
+                state.crashHistory = [];
+                state.peakMultiplier = 1.0;
+                state.grossWins = 0;
+                state.grossLosses = 0;
+                state.maxDrawdown = 0;
+                state.peakBalance = state.balance;
+
+                state.currentStrategy = strategySelect.value;
+                state.baseBet = parseFloat(baseBetInput.value) || 10;
+                state.stopLoss = parseFloat(stopLossInput.value) || 0;
+                state.takeProfit = parseFloat(takeProfitInput.value) || 0;
+                state.maxRounds = parseInt(maxRoundsInput.value) || 50;
+
+                const s = state.strategyState;
+                s.martingale = { multiplier: 1 };
+                s.antimartingale = { multiplier: 1 };
+                s.fibonacci = { sequence: [1, 1], index: 0 };
+                s.dalembert = { unit: 0 };
+                s.oscar = { targetProfit: state.baseBet * 2, currentBet: state.baseBet, unit: state.baseBet };
+                s.labouchere = { sequence: [1, 2, 3] };
+                s.paroli = { step: 0 };
+                s.kelly = { bankroll: state.balance };
+                s.fixed = { bet: state.baseBet };
+
+                state.isRunning = true;
+                state.totalBets = 0;
+                state.wins = 0;
+                state.losses = 0;
+                state.streak = 0;
+                state.bestWin = 0;
+                state.avgCrash = 0;
+                state.totalProfit = 0;
+                state.history = [];
+                renderHistory();
+
+                updateUI();
+                drawGraph();
+                setTimeout(() => { if (state.isRunning) startRound(); }, 300);
+            }
+
+            function stopBot(reason) {
+                if (!state.isRunning) return;
+                state.isRunning = false;
+                state.isBetting = false;
+                state.roundInProgress = false;
+                if (state.animFrame) { cancelAnimationFrame(state.animFrame);
+                    state.animFrame = null; }
+                state.stoppedDueTo = reason || null;
+                updateUI();
+                drawGraph();
+            }
+
+            function resetSimulator() {
+                stopBot();
+                state.balance = 1000;
+                state.initialBalance = 1000;
+                state.totalBets = 0;
+                state.wins = 0;
+                state.losses = 0;
+                state.avgCrash = 0;
+                state.bestWin = 0;
+                state.streak = 0;
+                state.rounds = 0;
+                state.totalProfit = 0;
+                state.sessionProfit = 0;
+                state.history = [];
+                state.graphData = [];
+                state.currentMultiplier = 1.0;
+                state.isCrashed = false;
+                state.roundInProgress = false;
+                state.isBetting = false;
+                state.currentRound = 0;
+                state.stoppedDueTo = null;
+                state.crashHistory = [];
+                state.grossWins = 0;
+                state.grossLosses = 0;
+                state.maxDrawdown = 0;
+                state.peakBalance = 1000;
+                state.peakMultiplier = 1.0;
+                const s = state.strategyState;
+                s.martingale = { multiplier: 1 };
+                s.antimartingale = { multiplier: 1 };
+                s.fibonacci = { sequence: [1, 1], index: 0 };
+                s.dalembert = { unit: 0 };
+                s.oscar = { targetProfit: state.baseBet * 2, currentBet: state.baseBet, unit: state.baseBet };
+                s.labouchere = { sequence: [1, 2, 3] };
+                s.paroli = { step: 0 };
+                s.kelly = { bankroll: state.balance };
+                s.fixed = { bet: state.baseBet };
+                renderHistory();
+                updateUI();
+                drawGraph();
+                clearPredictions();
+            }
+
+            // ─── Predictions ───
+            function generatePredictions() {
+                const count = 5;
+                const preds = [];
+                for (let i = 0; i < count; i++) {
+                    preds.push(generateCrashPoint());
+                }
+                displayPredictions(preds);
+            }
+
+            function displayPredictions(preds) {
+                const items = predGrid.querySelectorAll('.pred-item');
+                items.forEach((item, idx) => {
+                    const val = preds[idx] || 0;
+                    const valueEl = item.querySelector('.pred-value');
+                    valueEl.textContent = val.toFixed(2) + '×';
+                    const target = parseFloat(targetMultInput.value) || 2.0;
+                    if (val >= target) {
+                        valueEl.className = 'pred-value high';
+                    } else {
+                        valueEl.className = 'pred-value low';
+                    }
                 });
-            }, 250);
-        });
+            }
 
-        console.log('🚀 CrashLab AI initialized');
-        console.log('📊 Educational Simulation — Not a Betting Tool');
-        console.log('🔬 Explore probability concepts safely');
+            function clearPredictions() {
+                const items = predGrid.querySelectorAll('.pred-item');
+                items.forEach(item => {
+                    const valueEl = item.querySelector('.pred-value');
+                    valueEl.textContent = '—';
+                    valueEl.className = 'pred-value';
+                });
+            }
+
+            // ─── Event bindings ───
+            startBtn.addEventListener('click', startBot);
+            stopBtn.addEventListener('click', () => stopBot(null));
+            resetBtn.addEventListener('click', resetSimulator);
+            clearHistoryBtn.addEventListener('click', () => { state.history = [];
+                renderHistory(); });
+            predictBtn.addEventListener('click', generatePredictions);
+
+            strategySelect.addEventListener('change', () => {
+                state.currentStrategy = strategySelect.value;
+                const s = state.strategyState;
+                s.martingale = { multiplier: 1 };
+                s.antimartingale = { multiplier: 1 };
+                s.fibonacci = { sequence: [1, 1], index: 0 };
+                s.dalembert = { unit: 0 };
+                s.oscar = { targetProfit: state.baseBet * 2, currentBet: state.baseBet, unit: state.baseBet };
+                s.labouchere = { sequence: [1, 2, 3] };
+                s.paroli = { step: 0 };
+                s.kelly = { bankroll: state.balance };
+                s.fixed = { bet: state.baseBet };
+            });
+
+            // ─── Keyboard shortcuts ───
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !state.isRunning) startBot();
+                if (e.key === ' ' && state.isRunning) { e.preventDefault();
+                    stopBot(null); }
+                if (e.key === 'r' || e.key === 'R') resetSimulator();
+                if (e.key === 'p' || e.key === 'P') generatePredictions();
+            });
+
+            // ─── Show content after loading ───
+            document.getElementById('appLoading').style.display = 'none';
+            document.getElementById('appContent').style.display = 'block';
+
+            // ─── Init ───
+            resetSimulator();
+            window.addEventListener('resize', () => { const s = resizeCanvas();
+                CANVAS_W = s.w;
+                CANVAS_H = s.h;
+                drawGraph(); });
+
+            console.log('🛩️ Pro Aviator Terminal PWA loaded with custom icon');
+            console.log('🎨 Icon: Dark Navy + White Airliner + Cyan Swoosh + Gradient Text');
+            console.log('📲 Click "Install App" to add to your home screen');
+            console.log('⌨️  Enter=Start  Space=Stop  R=Reset  P=Predict');
+
+            window.__state = state;
+        })();
     </script>
 </body>
 </html>
